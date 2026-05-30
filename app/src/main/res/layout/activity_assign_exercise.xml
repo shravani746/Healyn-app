@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_assign_exercise.xml — REDESIGNED v2 -->
+<!-- Package: com.example.physioapp | Author: Zehrah -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <!-- ═══════════════════════════════════════════════
+         HEADER
+         ═══════════════════════════════════════════════ -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/header_navy">
+
+        <View
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_gravity="end|top"
+            android:layout_marginTop="-20dp"
+            android:layout_marginEnd="-20dp"
+            android:background="@drawable/bg_header_circle1" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="8dp"
+            android:paddingTop="42dp"
+            android:paddingEnd="22dp"
+            android:paddingBottom="18dp"
+            android:gravity="center_vertical">
+
+            <!-- Back button -->
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_back_btn"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:contentDescription="Back"
+                android:scaleX="0.7"
+                android:scaleY="0.7"
+                app:tint="@color/white" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingStart="6dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/assign_screen_sub"
+                    android:textColor="#80FFFFFF"
+                    android:textSize="12sp"
+                    android:letterSpacing="0.03" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/assign_exercise"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+
+            <!-- Plus icon circle -->
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_plus_circle"
+                android:gravity="center"
+                android:text="+"
+                android:textColor="#80FFFFFF"
+                android:textSize="22sp"
+                android:fontFamily="sans-serif-light" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- ═══════════════════════════════════
+         SCROLLABLE BODY
+         ═══════════════════════════════════ -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingTop="18dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="16dp">
+
+            <!-- Back breadcrumb row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/bg_breadcrumb_btn"
+                    android:gravity="center">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="←"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_primary" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sec_exercise_details"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif-medium" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/assign_back_sub"
+                        android:textSize="11sp"
+                        android:textColor="@color/text_secondary" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ── Form card ── -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/surface"
+                android:layout_marginBottom="14dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Exercise name -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/lbl_exercise_name"
+                        android:textSize="10sp"
+                        android:textColor="@color/text_secondary"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.07"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="6dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilExerciseName"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_exercise_name"
+                        app:boxCornerRadiusTopStart="10dp"
+                        app:boxCornerRadiusTopEnd="10dp"
+                        app:boxCornerRadiusBottomStart="10dp"
+                        app:boxCornerRadiusBottomEnd="10dp"
+                        app:hintTextColor="@color/primary"
+                        app:boxStrokeColor="@color/primary"
+                        android:layout_marginBottom="14dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etExerciseName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapSentences"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Patient selector -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/lbl_select_patient"
+                        android:textSize="10sp"
+                        android:textColor="@color/text_secondary"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.07"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="6dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilPatient"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_patient"
+                        app:boxCornerRadiusTopStart="10dp"
+                        app:boxCornerRadiusTopEnd="10dp"
+                        app:boxCornerRadiusBottomStart="10dp"
+                        app:boxCornerRadiusBottomEnd="10dp"
+                        app:hintTextColor="@color/primary"
+                        app:boxStrokeColor="@color/primary"
+                        android:layout_marginBottom="14dp">
+                        <AutoCompleteTextView
+                            android:id="@+id/actvPatient"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:focusable="false"
+                            android:inputType="none"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Reps & Sets row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="14dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/lbl_reps"
+                                android:textSize="10sp"
+                                android:textColor="@color/text_secondary"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.07"
+                                android:textAllCaps="true"
+                                android:layout_marginBottom="6dp" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/tilReps"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="@string/hint_reps"
+                                app:boxCornerRadiusTopStart="10dp"
+                                app:boxCornerRadiusTopEnd="10dp"
+                                app:boxCornerRadiusBottomStart="10dp"
+                                app:boxCornerRadiusBottomEnd="10dp"
+                                app:hintTextColor="@color/primary"
+                                app:boxStrokeColor="@color/primary">
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etReps"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="number"
+                                    android:textSize="14sp" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/lbl_sets"
+                                android:textSize="10sp"
+                                android:textColor="@color/text_secondary"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.07"
+                                android:textAllCaps="true"
+                                android:layout_marginBottom="6dp" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/tilSets"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="@string/hint_sets"
+                                app:boxCornerRadiusTopStart="10dp"
+                                app:boxCornerRadiusTopEnd="10dp"
+                                app:boxCornerRadiusBottomStart="10dp"
+                                app:boxCornerRadiusBottomEnd="10dp"
+                                app:hintTextColor="@color/primary"
+                                app:boxStrokeColor="@color/primary">
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etSets"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="number"
+                                    android:textSize="14sp" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Notes -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/lbl_notes"
+                        android:textSize="10sp"
+                        android:textColor="@color/text_secondary"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.07"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="6dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilNotes"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_notes"
+                        app:boxCornerRadiusTopStart="10dp"
+                        app:boxCornerRadiusTopEnd="10dp"
+                        app:boxCornerRadiusBottomStart="10dp"
+                        app:boxCornerRadiusBottomEnd="10dp"
+                        app:hintTextColor="@color/primary"
+                        app:boxStrokeColor="@color/primary">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etNotes"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textMultiLine|textCapSentences"
+                            android:minLines="3"
+                            android:gravity="top"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Assign button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAssign"
+                style="@style/PrimaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_assign_exercise" />
+
+            <!-- Cancel button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancel"
+                style="@style/SecondaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/btn_cancel" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ═══════════════════════════════════
+         BOTTOM NAV BAR
+         ═══════════════════════════════════ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/surface"
+        android:orientation="horizontal"
+        android:weightSum="3">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingTop="6dp">
+            <View android:layout_width="22dp" android:layout_height="3dp"
+                android:background="@android:color/transparent" android:layout_marginBottom="4dp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="⌂" android:textSize="18sp" android:textColor="@color/nav_inactive" android:gravity="center" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/nav_home" android:textSize="10sp" android:textColor="@color/nav_inactive"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingTop="6dp">
+            <View android:layout_width="22dp" android:layout_height="3dp"
+                android:background="@drawable/bg_nav_indicator_active" android:layout_marginBottom="4dp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="📋" android:textSize="18sp" android:textColor="@color/primary" android:gravity="center" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/nav_assign" android:textSize="10sp" android:textColor="@color/primary"
+                android:fontFamily="sans-serif-medium" android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingTop="6dp">
+            <View android:layout_width="22dp" android:layout_height="3dp"
+                android:background="@android:color/transparent" android:layout_marginBottom="4dp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="👤" android:textSize="18sp" android:textColor="@color/nav_inactive" android:gravity="center" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/nav_patients" android:textSize="10sp" android:textColor="@color/nav_inactive"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

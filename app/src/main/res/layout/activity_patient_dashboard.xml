@@ -1,0 +1,522 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_patient_dashboard.xml — REDESIGNED v2 -->
+<!-- Package: com.example.physioapp | Author: Zehrah -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <!-- ═══════════════════════════════════════════════
+         HEADER — Deep navy with accent circles + stats
+         ═══════════════════════════════════════════════ -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/header_navy">
+
+        <!-- Decorative circle 1 (top-right) -->
+        <View
+            android:layout_width="110dp"
+            android:layout_height="110dp"
+            android:layout_gravity="end|top"
+            android:layout_marginTop="-28dp"
+            android:layout_marginEnd="-28dp"
+            android:background="@drawable/bg_header_circle1" />
+
+        <!-- Decorative circle 2 (smaller, inner) -->
+        <View
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:layout_gravity="end|top"
+            android:layout_marginTop="42dp"
+            android:layout_marginEnd="28dp"
+            android:background="@drawable/bg_header_circle2" />
+
+        <!-- Header content -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="22dp"
+            android:paddingTop="44dp"
+            android:paddingEnd="22dp"
+            android:paddingBottom="20dp">
+
+            <!-- Row: name + avatar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvGreeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/good_morning"
+                        android:textColor="#80FFFFFF"
+                        android:textSize="12sp"
+                        android:letterSpacing="0.03" />
+
+                    <TextView
+                        android:id="@+id/tvPatientName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Alex Johnson"
+                        android:textColor="@color/white"
+                        android:textSize="22sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:layout_marginTop="2dp"
+                        android:lineSpacingMultiplier="1.1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/lbl_patient_role"
+                        android:textColor="#70A0CC"
+                        android:textSize="11sp"
+                        android:layout_marginTop="3dp" />
+                </LinearLayout>
+
+                <!-- Avatar circle -->
+                <TextView
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:background="@drawable/bg_avatar_navy"
+                    android:gravity="center"
+                    android:text="AJ"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+
+            <!-- ── Stat pills row ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:weightSum="3">
+
+                <!-- Stat: streak -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_stat_pill"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:layout_marginEnd="6dp">
+
+                    <TextView
+                        android:id="@+id/tvStreak"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="5"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/stat_streak"
+                        android:textColor="@color/stat_pill_text_lbl"
+                        android:textSize="10sp"
+                        android:layout_marginTop="1dp" />
+                </LinearLayout>
+
+                <!-- Stat: sessions -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_stat_pill"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:layout_marginEnd="6dp">
+
+                    <TextView
+                        android:id="@+id/tvSessions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="12"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/stat_sessions"
+                        android:textColor="@color/stat_pill_text_lbl"
+                        android:textSize="10sp"
+                        android:layout_marginTop="1dp" />
+                </LinearLayout>
+
+                <!-- Stat: recovery -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_stat_pill"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/tvRecovery"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="78%"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/stat_recovery"
+                        android:textColor="@color/stat_pill_text_lbl"
+                        android:textSize="10sp"
+                        android:layout_marginTop="1dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- ═══════════════════════════════════
+         SCROLLABLE BODY
+         ═══════════════════════════════════ -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="16dp">
+
+            <!-- Section label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sec_quick_actions"
+                android:textSize="11sp"
+                android:textColor="@color/text_secondary"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.06"
+                android:textAllCaps="true"
+                android:layout_marginBottom="12dp" />
+
+            <!-- ── Card: Start Exercise ── -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardStartExercise"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/surface"
+                android:layout_marginBottom="10dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <!-- Icon -->
+                    <LinearLayout
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_icon_blue_rounded"
+                        android:gravity="center">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🏃"
+                            android:textSize="22sp" />
+                    </LinearLayout>
+
+                    <!-- Text -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/start_exercise"
+                            android:textSize="15sp"
+                            android:textColor="@color/text_primary"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/start_exercise_desc"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary"
+                            android:layout_marginTop="3dp"
+                            android:lineSpacingMultiplier="1.3" />
+                    </LinearLayout>
+
+                    <!-- Arrow circle -->
+                    <TextView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@drawable/bg_arrow_blue"
+                        android:gravity="center"
+                        android:text="›"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ── Card: View Progress ── -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardViewProgress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/surface"
+                android:layout_marginBottom="20dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_icon_teal_rounded"
+                        android:gravity="center">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="📈"
+                            android:textSize="22sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/view_progress"
+                            android:textSize="15sp"
+                            android:textColor="@color/text_primary"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/view_progress_desc"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary"
+                            android:layout_marginTop="3dp"
+                            android:lineSpacingMultiplier="1.3" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@drawable/bg_arrow_teal"
+                        android:gravity="center"
+                        android:text="›"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ── Tip card ── -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/tip_bg"
+                android:layout_marginBottom="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="14dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="💡"
+                        android:textSize="18sp"
+                        android:layout_marginEnd="10dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/tip_body"
+                        android:textSize="12sp"
+                        android:textColor="@color/tip_text"
+                        android:lineSpacingMultiplier="1.5" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Logout button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogout"
+                style="@style/SecondaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_logout" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ═══════════════════════════════════
+         BOTTOM NAV BAR
+         ═══════════════════════════════════ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/surface"
+        android:orientation="horizontal"
+        android:weightSum="3">
+
+        <!-- Home (active) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingTop="6dp">
+
+            <View
+                android:layout_width="22dp"
+                android:layout_height="3dp"
+                android:background="@drawable/bg_nav_indicator_active"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⌂"
+                android:textSize="18sp"
+                android:textColor="@color/primary"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/nav_home"
+                android:textSize="10sp"
+                android:textColor="@color/primary"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- Exercise (inactive) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingTop="6dp">
+
+            <View
+                android:layout_width="22dp"
+                android:layout_height="3dp"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="♟"
+                android:textSize="18sp"
+                android:textColor="@color/nav_inactive"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/nav_exercise"
+                android:textSize="10sp"
+                android:textColor="@color/nav_inactive"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- Progress (inactive) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingTop="6dp">
+
+            <View
+                android:layout_width="22dp"
+                android:layout_height="3dp"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="↗"
+                android:textSize="18sp"
+                android:textColor="@color/nav_inactive"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/nav_progress"
+                android:textSize="10sp"
+                android:textColor="@color/nav_inactive"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Healyn" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:statusBarColor">@color/header_navy</item>
+        <item name="android:navigationBarColor">@color/surface</item>
+    </style>
+
+    <!-- Navy primary action button -->
+    <style name="PrimaryButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:backgroundTint">@color/header_navy</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <!-- Outlined secondary button -->
+    <style name="SecondaryButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">@color/divider</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <!-- Assign green button -->
+    <style name="AssignButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:backgroundTint">@color/secondary</item>
+        <item name="android:textColor">@color/secondary_dark</item>
+        <item name="cornerRadius">10dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+    </style>
+
+</resources>
