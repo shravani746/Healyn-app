@@ -1,4 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Main app theme -->
     <style name="Theme.Physioapp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">#028090</item>
         <item name="colorPrimaryVariant">#014F59</item>
@@ -8,8 +11,48 @@
         <item name="materialButtonStyle">@style/RoundedButton</item>
     </style>
 
+    <!-- Zehrah's theme — kept for her screens -->
+    <style name="Theme.Healyn" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:statusBarColor">#028090</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="materialButtonStyle">@style/RoundedButton</item>
+    </style>
+
+    <!-- Shared button styles -->
     <style name="RoundedButton" parent="Widget.MaterialComponents.Button">
         <item name="android:textAllCaps">false</item>
         <item name="cornerRadius">12dp</item>
     </style>
+
+    <style name="PrimaryButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:backgroundTint">#028090</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+    </style>
+
+    <style name="SecondaryButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="cornerRadius">14dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <style name="AssignButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:backgroundTint">@color/secondary</item>
+        <item name="cornerRadius">10dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+    </style>
+
 </resources>

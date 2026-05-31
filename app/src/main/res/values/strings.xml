@@ -1,3 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PhysioApp</string>
+
+    <!-- Patient Dashboard -->
+    <string name="good_morning">Good morning,</string>
+    <string name="good_afternoon">Good afternoon,</string>
+    <string name="good_evening">Good evening,</string>
+    <string name="lbl_patient_role">Patient</string>
+    <string name="lbl_week">Week 2 of recovery</string>
+
+    <string name="stat_streak">Day streak</string>
+    <string name="stat_sessions">Sessions done</string>
+    <string name="stat_recovery">Recovery</string>
+
+    <string name="sec_quick_actions">Quick Actions</string>
+    <string name="start_exercise">Start Exercise</string>
+    <string name="start_exercise_desc">Begin today\'s physiotherapy session</string>
+    <string name="view_progress">View Progress</string>
+    <string name="view_progress_desc">Track your recovery journey</string>
+
+    <string name="tip_title">Tip of the day</string>
+    <string name="tip_body">Consistency is key — even 10 minutes daily makes a real difference in your recovery.</string>
+
+    <string name="btn_logout">Log Out</string>
+
+    <!-- Physio Dashboard -->
+    <string name="lbl_physiotherapist">Physiotherapist</string>
+    <string name="lbl_active_patients">active patients</string>
+    <string name="stat_patients">Patients</string>
+    <string name="stat_exercises">Exercises</string>
+    <string name="stat_active">Active</string>
+    <string name="assign_exercise">Assign Exercise</string>
+    <string name="assign_exercise_sub">Prescribe a plan to a patient</string>
+    <string name="btn_assign_short">+ Assign</string>
+    <string name="sec_my_patients">My Patients</string>
+    <string name="status_active">Active</string>
+    <string name="status_pending">Pending</string>
+
+    <!-- Assign Exercise -->
+    <string name="assign_screen_sub">New prescription</string>
+    <string name="assign_back_sub">Fill in all fields below</string>
+    <string name="sec_exercise_details">Exercise Details</string>
+    <string name="hint_exercise_name">e.g. Shoulder Rotation</string>
+    <string name="hint_patient">Choose a patient</string>
+    <string name="hint_reps">e.g. 10</string>
+    <string name="hint_sets">e.g. 3</string>
+    <string name="hint_notes">Instructions for the patient…</string>
+    <string name="lbl_exercise_name">Exercise Name</string>
+    <string name="lbl_select_patient">Select Patient</string>
+    <string name="lbl_reps">Repetitions</string>
+    <string name="lbl_sets">Sets</string>
+    <string name="lbl_notes">Notes (optional)</string>
+    <string name="btn_assign_exercise">Assign Exercise</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="toast_success">Exercise assigned successfully!</string>
+    <string name="toast_error">Please fill in all fields.</string>
+
+    <!-- Nav -->
+    <string name="nav_home">Home</string>
+    <string name="nav_exercise">Exercise</string>
+    <string name="nav_progress">Progress</string>
+    <string name="nav_patients">Patients</string>
+    <string name="nav_plans">Plans</string>
+    <string name="nav_assign">Assign</string>
 </resources>

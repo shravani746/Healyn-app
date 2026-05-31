@@ -1,5 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Primary brand blue -->
+    <color name="primary">#4A90E2</color>
+    <color name="primary_dark">#2F6DB5</color>
+    <color name="primary_light">#E8F1FB</color>
+
+    <!-- NEW: Deep navy header (replaces flat blue) -->
+    <color name="header_navy">#1A2E4A</color>
+    <color name="header_navy_light">#243D5E</color>
+
+    <!-- Secondary / green -->
+    <color name="secondary">#34C759</color>
+    <color name="secondary_light">#DFF4ED</color>
+    <color name="secondary_dark">#085041</color>
+
+    <!-- Error -->
+    <color name="error">#FF3B30</color>
+
+    <!-- Surfaces -->
+    <color name="white">#FFFFFF</color>
+    <color name="background">#F0F4FA</color>
+    <color name="surface">#FFFFFF</color>
+
+    <!-- Text -->
+    <color name="text_primary">#1A1A2E</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="text_hint">#AAAAAA</color>
+
+    <!-- Borders -->
+    <color name="divider">#E5E7EB</color>
+
+    <!-- Patient avatar colors -->
+    <color name="avatar_green_bg">#DFF4ED</color>
+    <color name="avatar_green_text">#085041</color>
+    <color name="avatar_blue_bg">#E8F1FB</color>
+    <color name="avatar_blue_text">#0C447C</color>
+    <color name="avatar_coral_bg">#FAECE7</color>
+    <color name="avatar_coral_text">#712B13</color>
+
+    <!-- Badge colors -->
+    <color name="badge_active_bg">#DFF4ED</color>
+    <color name="badge_active_text">#085041</color>
+    <color name="badge_pending_bg">#FFF7E6</color>
+    <color name="badge_pending_text">#633806</color>
+
+    <!-- Tip card -->
+    <color name="tip_bg">#FFF7E6</color>
+    <color name="tip_border">#F5E0B0</color>
+    <color name="tip_text">#7A5000</color>
+
+    <!-- Nav -->
+    <color name="nav_active">#4A90E2</color>
+    <color name="nav_inactive">#AAAAAA</color>
+
+    <!-- Stat pill on dark header -->
+    <color name="stat_pill_bg">#243D5E</color>
+    <color name="stat_pill_text_num">#FFFFFF</color>
+    <color name="stat_pill_text_lbl">#7A95B8</color>
+
+    <!-- Overlay tints on header -->
+    <color name="header_circle1">#2A4A70</color>
+    <color name="header_circle2">#1F3A5F</color>
+
     <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
 </resources>

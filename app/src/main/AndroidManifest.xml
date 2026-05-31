@@ -12,18 +12,50 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Physioapp"
         tools:targetApi="31">
+
+        <!-- LAUNCHER activity — stays as is -->
         <activity
-            android:name=".ExerciseListActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".ExerciseSessionActivity"/>
         <activity android:name=".FeedbackActivity"/>
         <activity android:name=".PatientDashboardActivity"/>
+
+        <!-- Zehrah's activities — added AFTER MainActivity closes -->
+        <activity
+            android:name=".PatientDashboardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".PhysioDashboardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".AssignExerciseActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ExerciseListActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ProgressActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
     </application>
 
 </manifest>
