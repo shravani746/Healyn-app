@@ -62,5 +62,9 @@
     <color name="header_circle1">#2A4A70</color>
     <color name="header_circle2">#1F3A5F</color>
 
+    <!-- Added for Shravani theme compatibility -->
+    <color name="teal_primary">#028090</color>
+    <color name="teal_dark">#014F59</color>
+
     <color name="black">#FF000000</color>
 </resources>

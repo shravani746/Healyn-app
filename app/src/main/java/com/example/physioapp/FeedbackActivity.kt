@@ -41,9 +41,9 @@ class FeedbackActivity : AppCompatActivity() {
         }
 
         val label = when {
-            accuracy >= 80 -> "Great Job! 🎉"
-            accuracy >= 50 -> "Good Effort! 👍"
-            else           -> "Keep Practicing 💪"
+            accuracy >= 80 -> "Great Job!"
+            accuracy >= 50 -> "Good Effort!"
+            else           -> "Keep Practicing"
         }
 
         val color = Color.parseColor(hexColor)

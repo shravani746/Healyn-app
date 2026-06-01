@@ -24,16 +24,11 @@
         </activity>
         <activity android:name=".ExerciseSessionActivity"/>
         <activity android:name=".FeedbackActivity"/>
-        <activity android:name=".PatientDashboardActivity"/>
+        <activity android:name=".PhysioDashboardActivity"/>
 
         <!-- Zehrah's activities — added AFTER MainActivity closes -->
         <activity
             android:name=".PatientDashboardActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".PhysioDashboardActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
