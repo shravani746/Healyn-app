@@ -35,7 +35,7 @@ class FeedbackActivity : AppCompatActivity() {
 
         // Pick color and label based on score
         val hexColor = when {
-            accuracy >= 80 -> "#00A86B"   // green
+            accuracy >= 80 -> "#085041"   // dark green
             accuracy >= 50 -> "#FF9500"   // orange
             else           -> "#FF3B30"   // red
         }

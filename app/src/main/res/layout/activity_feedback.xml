@@ -4,53 +4,63 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F4FBFF">
+    android:background="#F0F4FA">
+
+    <!-- Dark Navy Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="3dp"
+        android:layout_marginEnd="3dp"
+        android:background="@drawable/bg_assign_banner"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:letterSpacing="0.1"
+            android:text="SESSION SUMMARY"
+            android:textColor="#7A95B8"
+            android:textSize="11sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="Great Work! ✓"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvExerciseName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Arm Raise"
+            android:textColor="#7A95B8"
+            android:textSize="13sp" />
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="16dp">
 
-            <!-- Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/header_bg"
-                android:padding="24dp"
-                android:gravity="center"
-                android:layout_marginBottom="24dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Session Complete!"
-                    android:textSize="26sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"/>
-
-                <TextView
-                    android:id="@+id/tvExerciseName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Arm Raise"
-                    android:textSize="14sp"
-                    android:textColor="#B2E4EA"
-                    android:layout_marginTop="4dp"/>
-            </LinearLayout>
-
-            <!-- Circular Accuracy Card -->
+            <!-- Accuracy Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
+                app:cardElevation="3dp"
                 app:cardBackgroundColor="#FFFFFF">
 
                 <LinearLayout
@@ -63,18 +73,18 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ACCURACY SCORE"
+                        android:text="AVG ACCURACY"
                         android:textSize="11sp"
                         android:textColor="#6B7280"
-                        android:textAllCaps="true"
                         android:letterSpacing="0.1"
-                        android:layout_marginBottom="20dp"/>
+                        android:layout_marginBottom="16dp"/>
 
+                    <!-- Circular Progress -->
                     <FrameLayout
-                        android:layout_width="180dp"
-                        android:layout_height="180dp"
+                        android:layout_width="160dp"
+                        android:layout_height="160dp"
                         android:layout_gravity="center"
-                        android:layout_marginBottom="20dp">
+                        android:layout_marginBottom="16dp">
 
                         <com.example.physioapp.CircularProgressView
                             android:id="@+id/circularProgressBar"
@@ -92,9 +102,9 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="85%"
-                                android:textSize="38sp"
+                                android:textSize="34sp"
                                 android:textStyle="bold"
-                                android:textColor="#028090"/>
+                                android:textColor="#1A2E4A"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -109,18 +119,11 @@
                         android:id="@+id/tvAccuracyLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Great Job!"
-                        android:textColor="#00A86B"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:text="Great Job! 🎉"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#085041"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Keep practicing to improve further"
-                        android:textSize="13sp"
-                        android:textColor="#6B7280"
-                        android:layout_marginTop="4dp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -128,54 +131,67 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
+                app:cardElevation="3dp"
                 app:cardBackgroundColor="#FFFFFF">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
+                    android:orientation="horizontal"
                     android:padding="20dp"
-                    android:gravity="center">
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="REPS COMPLETED"
+                            android:textSize="11sp"
+                            android:textColor="#6B7280"
+                            android:letterSpacing="0.1"
+                            android:layout_marginBottom="4dp"/>
+
+                        <TextView
+                            android:id="@+id/tvReps"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="32sp"
+                            android:textStyle="bold"
+                            android:textColor="#1A2E4A"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="reps this session"
+                            android:textSize="12sp"
+                            android:textColor="#6B7280"/>
+                    </LinearLayout>
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="REPS COMPLETED"
-                        android:textSize="11sp"
-                        android:textColor="#6B7280"
-                        android:textAllCaps="true"
-                        android:letterSpacing="0.1"
-                        android:layout_marginBottom="8dp"/>
-
-                    <TextView
-                        android:id="@+id/tvReps"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textSize="40sp"
-                        android:textStyle="bold"
-                        android:textColor="#1F2937"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="reps in this session"
-                        android:textSize="13sp"
-                        android:textColor="#6B7280"
-                        android:layout_marginTop="2dp"/>
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:text="🔁"
+                        android:textSize="24sp"
+                        android:gravity="center"
+                        android:background="@drawable/icon_bg_blue"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Feedback Card -->
+            <!-- Areas to Improve Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
+                app:cardElevation="3dp"
                 app:cardBackgroundColor="#FFFFFF">
 
                 <LinearLayout
@@ -190,7 +206,6 @@
                         android:text="AREAS TO IMPROVE"
                         android:textSize="11sp"
                         android:textColor="#6B7280"
-                        android:textAllCaps="true"
                         android:letterSpacing="0.1"
                         android:layout_marginBottom="12dp"/>
 
@@ -199,8 +214,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="• Arm too low at peak position&#10;• Keep elbow straight&#10;• Maintain a steady pace"
-                        android:textSize="15sp"
-                        android:textColor="#4B5563"
+                        android:textSize="14sp"
+                        android:textColor="#374151"
                         android:lineSpacingExtra="8dp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -211,9 +226,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:text="Try Again"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:backgroundTint="#028090"
+                android:backgroundTint="#1A2E4A"
                 android:stateListAnimator="@null"
                 android:layout_marginBottom="12dp"/>
 
@@ -222,12 +237,81 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:text="Back to Dashboard"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:backgroundTint="#014F59"
+                android:backgroundTint="#085041"
                 android:stateListAnimator="@null"
                 android:layout_marginBottom="24dp"/>
 
         </LinearLayout>
     </ScrollView>
+
+    <!-- Bottom Navigation -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:orientation="horizontal"
+        android:background="#FFFFFF"
+        android:elevation="8dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🏠"
+                android:textSize="20sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Home"
+                android:textSize="10sp"
+                android:textColor="#AAAAAA"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🏃"
+                android:textSize="20sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Exercise"
+                android:textSize="10sp"
+                android:textColor="#1A2E4A"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📈"
+                android:textSize="20sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Progress"
+                android:textSize="10sp"
+                android:textColor="#AAAAAA"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
 </LinearLayout>

@@ -65,4 +65,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("androidx.cardview:cardview:1.0.0")
+
+    //Splash activity animation
+    implementation("com.airbnb.android:lottie:6.6.7")
 }

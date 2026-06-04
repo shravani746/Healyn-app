@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4FBFF">
+    android:background="#F0F4FA">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,101 +11,135 @@
         android:gravity="center_horizontal"
         android:padding="28dp">
 
+        <!-- Logo -->
         <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:src="@drawable/healyn_logo"
             android:scaleType="fitCenter"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- App name -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Healyn"
+            android:textColor="#1A2E4A"
+            android:textSize="32sp"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome Back"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:textColor="#028090"
-            android:layout_marginBottom="6dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Login to your account"
-            android:textSize="13sp"
+            android:text="Your recovery, guided by AI"
+            android:textSize="14sp"
             android:textColor="#6B7280"
-            android:layout_marginBottom="32dp"/>
+            android:layout_marginBottom="40dp"/>
+
+        <!-- Email -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#1A2E4A"
+            android:layout_marginBottom="6dp"/>
 
         <EditText
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:hint="Email"
-            android:textColor="#222222"
+            android:hint="Enter your email"
+            android:textColor="#1A2E4A"
             android:textColorHint="#9CA3AF"
             android:inputType="textEmailAddress"
             android:padding="14dp"
             android:background="@drawable/input_bg"
             android:layout_marginBottom="16dp"/>
 
+        <!-- Password -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Password"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#1A2E4A"
+            android:layout_marginBottom="6dp"/>
+
         <EditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:hint="Password"
-            android:textColor="#222222"
+            android:hint="Enter your password"
+            android:textColor="#1A2E4A"
             android:textColorHint="#9CA3AF"
             android:inputType="textPassword"
             android:padding="14dp"
             android:background="@drawable/input_bg"
             android:layout_marginBottom="24dp"/>
 
+        <!-- Role Selection -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Select Role"
-            android:textSize="14sp"
-            android:textColor="#4B5563"
+            android:text="I am a"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#1A2E4A"
             android:layout_marginBottom="12dp"/>
 
         <RadioGroup
             android:id="@+id/rgRole"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginBottom="32dp">
 
             <RadioButton
                 android:id="@+id/rbPatient"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
                 android:text="Patient"
-                android:textColor="#1F2937"
-                android:textSize="15sp"
+                android:textColor="#1A2E4A"
+                android:textSize="14sp"
                 android:checked="true"
                 android:buttonTint="#028090"
-                android:layout_marginEnd="32dp"/>
+                android:gravity="center_vertical"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/input_bg"
+                android:paddingStart="12dp"/>
 
             <RadioButton
                 android:id="@+id/rbPhysio"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
                 android:text="Physiotherapist"
-                android:textColor="#1F2937"
-                android:textSize="15sp"
-                android:buttonTint="#028090"/>
-
+                android:textColor="#1A2E4A"
+                android:textSize="14sp"
+                android:buttonTint="#028090"
+                android:gravity="center_vertical"
+                android:background="@drawable/input_bg"
+                android:paddingStart="12dp"/>
         </RadioGroup>
 
+        <!-- Login Button -->
         <Button
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:text="LOGIN"
+            android:layout_height="54dp"
+            android:text="Log In"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
-            android:backgroundTint="#028090"
+            android:backgroundTint="#1A2E4A"
+            android:stateListAnimator="@null"
             android:layout_marginBottom="20dp"/>
 
         <TextView
@@ -114,8 +148,8 @@
             android:layout_height="wrap_content"
             android:text="Don't have an account? Sign Up"
             android:textColor="#028090"
-            android:textSize="13sp"/>
+            android:textSize="13sp"
+            android:layout_marginBottom="40dp"/>
 
     </LinearLayout>
-
 </ScrollView>

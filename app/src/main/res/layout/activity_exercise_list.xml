@@ -4,53 +4,65 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F4FBFF">
+    android:background="#F0F4FA">
 
-    <include layout="@layout/toolbar_healyn"/>
+    <!-- Dark Navy Header -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:background="@drawable/bg_assign_banner"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.1"
+            android:text="TODAY'S SESSION"
+            android:textColor="#7A95B8"
+            android:textSize="11sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="My Exercises"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="Take your time. Go at your own pace."
+            android:textColor="#7A95B8"
+            android:textSize="13sp" />
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
-
-            <!-- Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/header_bg"
-                android:padding="20dp"
-                android:layout_marginBottom="24dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="My Exercises"
-                    android:textSize="28sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Take your time. Go at your own pace."
-                    android:textSize="14sp"
-                    android:textColor="#B2E4EA"
-                    android:layout_marginTop="4dp"/>
-            </LinearLayout>
+            android:padding="16dp">
 
             <!-- Arm Raise Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
+                app:cardElevation="3dp"
                 app:cardBackgroundColor="#FFFFFF">
 
                 <LinearLayout
@@ -64,16 +76,17 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
+                        android:layout_marginBottom="12dp">
 
+                        <!-- Icon circle -->
                         <TextView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
                             android:text="💪"
-                            android:textSize="24sp"
+                            android:textSize="22sp"
                             android:gravity="center"
                             android:background="@drawable/icon_bg_blue"
-                            android:layout_marginEnd="12dp"/>
+                            android:layout_marginEnd="14dp"/>
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -84,42 +97,42 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-medium"
                                 android:text="Arm Raise"
-                                android:textSize="18sp"
-                                android:textStyle="bold"
-                                android:textColor="#1F2937"/>
+                                android:textColor="#1A2E4A"
+                                android:textSize="17sp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="sans-serif-medium"
                                 android:text="Shoulder Strengthening"
-                                android:textSize="12sp"
-                                android:textColor="#028090"/>
+                                android:textColor="#6B7280"
+                                android:textSize="12sp" />
                         </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Easy"
-                            android:textSize="11sp"
-                            android:textColor="#00A86B"
                             android:background="@drawable/badge_green"
+                            android:fontFamily="sans-serif-medium"
                             android:paddingStart="10dp"
-                            android:paddingEnd="10dp"
                             android:paddingTop="4dp"
-                            android:paddingBottom="4dp"/>
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="4dp"
+                            android:text="Easy"
+                            android:textColor="#085041"
+                            android:textSize="11sp" />
                     </LinearLayout>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="#E5E7EB"
-                        android:layout_marginBottom="12dp"/>
-
+                    <!-- Stats Row -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
+                        android:background="#F8FAFC"
+                        android:padding="12dp"
                         android:layout_marginBottom="16dp">
 
                         <LinearLayout
@@ -133,20 +146,22 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="3"
-                                android:textSize="24sp"
+                                android:textSize="22sp"
                                 android:textStyle="bold"
-                                android:textColor="#1F2937"/>
+                                android:textColor="#1A2E4A"/>
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-medium"
                                 android:text="Sets"
-                                android:textSize="12sp"
-                                android:textColor="#6B7280"/>
+                                android:textColor="#6B7280"
+                                android:textSize="11sp" />
                         </LinearLayout>
 
                         <View
                             android:layout_width="1dp"
-                            android:layout_height="36dp"
+                            android:layout_height="32dp"
                             android:background="#E5E7EB"/>
 
                         <LinearLayout
@@ -160,15 +175,17 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="10"
-                                android:textSize="24sp"
+                                android:textSize="22sp"
                                 android:textStyle="bold"
-                                android:textColor="#1F2937"/>
+                                android:textColor="#1A2E4A"/>
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-medium"
                                 android:text="Reps"
-                                android:textSize="12sp"
-                                android:textColor="#6B7280"/>
+                                android:textColor="#6B7280"
+                                android:textSize="11sp" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -176,11 +193,11 @@
                         android:id="@+id/btnStartArmRaise"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
+                        android:backgroundTint="#1A2E4A"
+                        android:fontFamily="sans-serif-medium"
+                        android:stateListAnimator="@null"
                         android:text="Start Exercise"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:backgroundTint="#028090"
-                        android:stateListAnimator="@null"/>
+                        android:textSize="14sp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -188,9 +205,9 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
+                app:cardElevation="3dp"
                 app:cardBackgroundColor="#FFFFFF">
 
                 <LinearLayout
@@ -204,16 +221,16 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
+                        android:layout_marginBottom="12dp">
 
                         <TextView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
                             android:text="🦵"
-                            android:textSize="24sp"
+                            android:textSize="22sp"
                             android:gravity="center"
                             android:background="@drawable/icon_bg_blue"
-                            android:layout_marginEnd="12dp"/>
+                            android:layout_marginEnd="14dp"/>
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -224,42 +241,41 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-medium"
                                 android:text="Squat"
-                                android:textSize="18sp"
-                                android:textStyle="bold"
-                                android:textColor="#1F2937"/>
+                                android:textColor="#1A2E4A"
+                                android:textSize="17sp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="sans-serif-medium"
                                 android:text="Knee &amp; Leg Strengthening"
-                                android:textSize="12sp"
-                                android:textColor="#028090"/>
+                                android:textColor="#6B7280"
+                                android:textSize="12sp" />
                         </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Medium"
-                            android:textSize="11sp"
-                            android:textColor="#FF9500"
                             android:background="@drawable/badge_orange"
+                            android:fontFamily="sans-serif-medium"
                             android:paddingStart="10dp"
-                            android:paddingEnd="10dp"
                             android:paddingTop="4dp"
-                            android:paddingBottom="4dp"/>
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="4dp"
+                            android:text="Medium"
+                            android:textColor="#FF9500"
+                            android:textSize="11sp" />
                     </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="#E5E7EB"
-                        android:layout_marginBottom="12dp"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
+                        android:background="#F8FAFC"
+                        android:padding="12dp"
                         android:layout_marginBottom="16dp">
 
                         <LinearLayout
@@ -273,20 +289,22 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="3"
-                                android:textSize="24sp"
+                                android:textSize="22sp"
                                 android:textStyle="bold"
-                                android:textColor="#1F2937"/>
+                                android:textColor="#1A2E4A"/>
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-medium"
                                 android:text="Sets"
-                                android:textSize="12sp"
-                                android:textColor="#6B7280"/>
+                                android:textColor="#6B7280"
+                                android:textSize="11sp" />
                         </LinearLayout>
 
                         <View
                             android:layout_width="1dp"
-                            android:layout_height="36dp"
+                            android:layout_height="32dp"
                             android:background="#E5E7EB"/>
 
                         <LinearLayout
@@ -300,15 +318,17 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="12"
-                                android:textSize="24sp"
+                                android:textSize="22sp"
                                 android:textStyle="bold"
-                                android:textColor="#1F2937"/>
+                                android:textColor="#1A2E4A"/>
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-medium"
                                 android:text="Reps"
-                                android:textSize="12sp"
-                                android:textColor="#6B7280"/>
+                                android:textColor="#6B7280"
+                                android:textSize="11sp" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -316,11 +336,11 @@
                         android:id="@+id/btnStartSquat"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
+                        android:backgroundTint="#1A2E4A"
+                        android:fontFamily="sans-serif-medium"
+                        android:stateListAnimator="@null"
                         android:text="Start Exercise"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:backgroundTint="#028090"
-                        android:stateListAnimator="@null"/>
+                        android:textSize="14sp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -328,9 +348,9 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
+                app:cardElevation="3dp"
                 app:cardBackgroundColor="#FFFFFF">
 
                 <LinearLayout
@@ -344,16 +364,16 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
+                        android:layout_marginBottom="12dp">
 
                         <TextView
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
                             android:text="🧘"
-                            android:textSize="24sp"
+                            android:textSize="22sp"
                             android:gravity="center"
                             android:background="@drawable/icon_bg_blue"
-                            android:layout_marginEnd="12dp"/>
+                            android:layout_marginEnd="14dp"/>
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -364,17 +384,18 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-medium"
                                 android:text="Neck Stretch"
-                                android:textSize="18sp"
-                                android:textStyle="bold"
-                                android:textColor="#1F2937"/>
+                                android:textColor="#1A2E4A"
+                                android:textSize="17sp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Tension Relief"
                                 android:textSize="12sp"
-                                android:textColor="#028090"/>
+                                android:textColor="#6B7280"
+                                android:layout_marginTop="2dp"/>
                         </LinearLayout>
 
                         <TextView
@@ -382,7 +403,7 @@
                             android:layout_height="wrap_content"
                             android:text="Easy"
                             android:textSize="11sp"
-                            android:textColor="#00A86B"
+                            android:textColor="#085041"
                             android:background="@drawable/badge_green"
                             android:paddingStart="10dp"
                             android:paddingEnd="10dp"
@@ -390,16 +411,12 @@
                             android:paddingBottom="4dp"/>
                     </LinearLayout>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="#E5E7EB"
-                        android:layout_marginBottom="12dp"/>
-
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
+                        android:background="#F8FAFC"
+                        android:padding="12dp"
                         android:layout_marginBottom="16dp">
 
                         <LinearLayout
@@ -413,20 +430,20 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="2"
-                                android:textSize="24sp"
+                                android:textSize="22sp"
                                 android:textStyle="bold"
-                                android:textColor="#1F2937"/>
+                                android:textColor="#1A2E4A"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Sets"
-                                android:textSize="12sp"
+                                android:textSize="11sp"
                                 android:textColor="#6B7280"/>
                         </LinearLayout>
 
                         <View
                             android:layout_width="1dp"
-                            android:layout_height="36dp"
+                            android:layout_height="32dp"
                             android:background="#E5E7EB"/>
 
                         <LinearLayout
@@ -440,14 +457,14 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="30s"
-                                android:textSize="24sp"
+                                android:textSize="22sp"
                                 android:textStyle="bold"
-                                android:textColor="#1F2937"/>
+                                android:textColor="#1A2E4A"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Hold Each Side"
-                                android:textSize="12sp"
+                                android:text="Hold"
+                                android:textSize="11sp"
                                 android:textColor="#6B7280"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -457,13 +474,82 @@
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:text="Start Exercise"
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
-                        android:backgroundTint="#028090"
+                        android:backgroundTint="#1A2E4A"
                         android:stateListAnimator="@null"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
         </LinearLayout>
     </ScrollView>
+
+    <!-- Bottom Navigation -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:orientation="horizontal"
+        android:background="#FFFFFF"
+        android:elevation="8dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🏠"
+                android:textSize="20sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Home"
+                android:textSize="10sp"
+                android:textColor="#AAAAAA"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🏃"
+                android:textSize="20sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Exercise"
+                android:textSize="10sp"
+                android:textColor="#1A2E4A"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📈"
+                android:textSize="20sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Progress"
+                android:textSize="10sp"
+                android:textColor="#AAAAAA"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
 </LinearLayout>

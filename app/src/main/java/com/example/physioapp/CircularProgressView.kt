@@ -17,8 +17,8 @@ class CircularProgressView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     private var progress = 0f
-    private var trackColor = Color.parseColor("#E0F4F6")
-    private var progressColor = Color.parseColor("#028090")
+    private var trackColor = Color.parseColor("#E8EEF4")
+    private var progressColor = Color.parseColor("#1A2E4A")
     private val strokeWidth = 40f
 
     private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {

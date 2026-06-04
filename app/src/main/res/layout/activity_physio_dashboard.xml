@@ -240,13 +240,6 @@
                 </LinearLayout>
 
                 <!-- Decorative circle on banner -->
-                <View
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:layout_gravity="end|bottom"
-                    android:layout_marginEnd="-16dp"
-                    android:layout_marginBottom="-16dp"
-                    android:background="@drawable/bg_banner_circle" />
             </FrameLayout>
 
             <!-- ── Patients header row ── -->
