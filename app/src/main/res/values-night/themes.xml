@@ -54,5 +54,4 @@
         <item name="android:paddingStart">14dp</item>
         <item name="android:paddingEnd">14dp</item>
     </style>
-
 </resources>

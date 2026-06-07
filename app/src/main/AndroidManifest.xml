@@ -52,10 +52,6 @@
             android:name=".AssignExerciseActivity"
             android:exported="false"
             android:screenOrientation="portrait"/>
-        <activity
-            android:name=".ProgressActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"/>
 
         <!-- Shravani's screens -->
         <activity
@@ -63,11 +59,18 @@
             android:exported="false"
             android:screenOrientation="portrait"/>
         <activity
+            android:name=".FeedbackActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
+
+        <!-- Arya's screens -->
+
+        <activity
             android:name=".ExerciseSessionActivity"
             android:exported="false"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".FeedbackActivity"
+            android:name=".ProgressActivity"
             android:exported="false"
             android:screenOrientation="portrait"/>
 
