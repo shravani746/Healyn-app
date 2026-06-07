@@ -11,7 +11,7 @@
         <item name="materialButtonStyle">@style/RoundedButton</item>
     </style>
 
-    <!-- Zehrah's theme — kept for her screens -->
+    <!-- Zehrah's theme -->
     <style name="Theme.Healyn" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primary_dark</item>
