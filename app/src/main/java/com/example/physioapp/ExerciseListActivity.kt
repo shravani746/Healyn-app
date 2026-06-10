@@ -28,7 +28,7 @@ class ExerciseListActivity : AppCompatActivity() {
     }
 
     private fun launchSession(name: String, reps: Int, sets: Int) {
-        val intent = Intent(this, ExerciseSessionActivity::class.java)
+        val intent = Intent(this, ExerciseDetailActivity::class.java)
         intent.putExtra("EXERCISE_NAME", name)
         intent.putExtra("EXERCISE_REPS", reps)
         intent.putExtra("EXERCISE_SETS", sets)

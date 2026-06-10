@@ -51,12 +51,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
-            android:fontFamily="@font/great_vibes"
-            android:letterSpacing="0.04"
+            android:fontFamily="@font/parkinsans"
             android:text="Healyn"
-            android:visibility="invisible"
             android:textColor="@color/white"
-            android:textSize="60sp" />
+            android:textSize="50sp"
+            android:visibility="invisible" />
 
         <View
             android:layout_width="48dp"

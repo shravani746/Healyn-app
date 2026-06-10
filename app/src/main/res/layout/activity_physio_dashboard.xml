@@ -312,8 +312,14 @@
             android:paddingTop="6dp">
             <View android:layout_width="22dp" android:layout_height="3dp"
                 android:background="@drawable/bg_nav_indicator_active" android:layout_marginBottom="4dp" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="⌂" android:textSize="18sp" android:textColor="@color/primary" android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="🏠"
+                android:textColor="@color/primary"
+                android:textSize="18sp" />
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="@string/nav_home" android:textSize="10sp" android:textColor="@color/primary"
                 android:fontFamily="sans-serif-medium" android:layout_marginTop="2dp" />
@@ -328,11 +334,22 @@
             android:paddingTop="6dp">
             <View android:layout_width="22dp" android:layout_height="3dp"
                 android:background="@android:color/transparent" android:layout_marginBottom="4dp" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="👤" android:textSize="18sp" android:textColor="@color/nav_inactive" android:gravity="center" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/nav_patients" android:textSize="10sp" android:textColor="@color/nav_inactive"
-                android:layout_marginTop="2dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="📋"
+                android:textColor="@color/nav_inactive"
+                android:textSize="18sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/nav_assign"
+                android:textColor="@color/nav_inactive"
+                android:textSize="10sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -344,11 +361,22 @@
             android:paddingTop="6dp">
             <View android:layout_width="22dp" android:layout_height="3dp"
                 android:background="@android:color/transparent" android:layout_marginBottom="4dp" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="📋" android:textSize="18sp" android:textColor="@color/nav_inactive" android:gravity="center" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/nav_plans" android:textSize="10sp" android:textColor="@color/nav_inactive"
-                android:layout_marginTop="2dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="👤"
+                android:textColor="@color/nav_inactive"
+                android:textSize="18sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/nav_patients"
+                android:textColor="@color/nav_inactive"
+                android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>
 

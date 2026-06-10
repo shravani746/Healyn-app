@@ -315,8 +315,14 @@
             android:paddingTop="6dp">
             <View android:layout_width="22dp" android:layout_height="3dp"
                 android:background="@android:color/transparent" android:layout_marginBottom="4dp" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="⌂" android:textSize="18sp" android:textColor="@color/nav_inactive" android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="🏠"
+                android:textColor="@color/nav_inactive"
+                android:textSize="18sp" />
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="Home" android:textSize="10sp" android:textColor="@color/nav_inactive"
                 android:layout_marginTop="2dp" />
@@ -329,8 +335,12 @@
             android:orientation="vertical"
             android:gravity="center"
             android:paddingTop="6dp">
-            <View android:layout_width="22dp" android:layout_height="3dp"
-                android:background="@drawable/bg_nav_indicator_active" android:layout_marginBottom="4dp" />
+
+            <View
+                android:layout_width="22dp"
+                android:layout_height="3dp"
+                android:layout_marginBottom="4dp"
+                android:background="@drawable/bg_nav_indicator_active" />
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="🏃" android:textSize="18sp" android:textColor="@color/primary" android:gravity="center" />
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"

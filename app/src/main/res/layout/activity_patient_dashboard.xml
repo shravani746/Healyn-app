@@ -437,10 +437,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="⌂"
-                android:textSize="18sp"
+                android:gravity="center"
+                android:text="🏠"
                 android:textColor="@color/primary"
-                android:gravity="center" />
+                android:textSize="18sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -470,10 +470,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="♟"
-                android:textSize="18sp"
+                android:gravity="center"
+                android:text="🏃"
                 android:textColor="@color/nav_inactive"
-                android:gravity="center" />
+                android:textSize="18sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -502,10 +502,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="↗"
-                android:textSize="18sp"
+                android:gravity="center"
+                android:text="📈"
                 android:textColor="@color/nav_inactive"
-                android:gravity="center" />
+                android:textSize="18sp" />
 
             <TextView
                 android:layout_width="wrap_content"
