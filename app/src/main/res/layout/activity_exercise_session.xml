@@ -21,7 +21,8 @@
         <com.example.physioapp.PoseOverlayView
             android:id="@+id/poseOverlay"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"/>
 
         <!-- Top overlay bar -->
         <LinearLayout

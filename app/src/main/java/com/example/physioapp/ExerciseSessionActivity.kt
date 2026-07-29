@@ -7,13 +7,18 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Matrix
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.*
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
@@ -31,15 +36,15 @@ import kotlin.math.atan2
 class ExerciseSessionActivity : AppCompatActivity() {
 
     // ─── Views ───────────────────────────────────────
-    private lateinit var previewView:    PreviewView
-    private lateinit var poseOverlay:    PoseOverlayView
+    private lateinit var previewView:     PreviewView
+    private lateinit var poseOverlay:     PoseOverlayView
     private lateinit var tvExerciseLabel: TextView
-    private lateinit var tvRepCount:     TextView
-    private lateinit var tvSetCount:     TextView
-    private lateinit var tvLiveFeedback: TextView
-    private lateinit var feedbackDot:    View
-    private lateinit var btnFinish:      Button
-    private lateinit var btnStop:        Button
+    private lateinit var tvRepCount:      TextView
+    private lateinit var tvSetCount:      TextView
+    private lateinit var tvLiveFeedback:  TextView
+    private lateinit var feedbackDot:     View
+    private lateinit var btnFinish:       Button
+    private lateinit var btnStop:         Button
 
     // ─── MediaPipe + Camera ───────────────────────────
     private lateinit var poseLandmarker: PoseLandmarker
@@ -51,20 +56,22 @@ class ExerciseSessionActivity : AppCompatActivity() {
     private var totalReps    = 10
     private var currentSet   = 1
     private var repCount     = 0
-    private var correctReps  = 0
-    private var totalFrames  = 0
     private var goodFrames   = 0
+    private var totalFrames  = 0
     private var isDown       = false
     private var isStopped    = false
+    private var isBreakShowing = false
 
     // ─── Angle smoothing (last 5 readings) ───────────
     private val angleBuffer = ArrayDeque<Double>(5)
+
+    // ─── Debug logging ────────────────────────────────
+    private var frameCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_exercise_session)
 
-        // Get data from ExerciseDetailActivity
         exerciseName = intent.getStringExtra("EXERCISE_NAME") ?: "Arm Raise"
         totalSets    = intent.getIntExtra("EXERCISE_SETS", 3)
         totalReps    = intent.getIntExtra("EXERCISE_REPS", 10)
@@ -86,12 +93,10 @@ class ExerciseSessionActivity : AppCompatActivity() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
-        // Back button
         findViewById<TextView>(R.id.btnBackSession).setOnClickListener {
             finish()
         }
 
-        // Check permission
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
@@ -102,13 +107,11 @@ class ExerciseSessionActivity : AppCompatActivity() {
             startCamera()
         }
 
-        // End session button
         btnStop.setOnClickListener {
             isStopped = true
             goToFeedback()
         }
 
-        // Complete set button — manual override
         btnFinish.setOnClickListener {
             isStopped = true
             goToFeedback()
@@ -125,10 +128,14 @@ class ExerciseSessionActivity : AppCompatActivity() {
             val options = PoseLandmarker.PoseLandmarkerOptions.builder()
                 .setBaseOptions(baseOptions)
                 .setRunningMode(RunningMode.LIVE_STREAM)
+                .setMinPoseDetectionConfidence(0.5f)
+                .setMinPosePresenceConfidence(0.5f)
+                .setMinTrackingConfidence(0.5f)
                 .setResultListener { result, input ->
                     processResult(result, input.width, input.height)
                 }
                 .setErrorListener { error ->
+                    android.util.Log.e("MEDIAPIPE", "Error: ${error.message}")
                     runOnUiThread {
                         tvLiveFeedback.text = "Detection error: ${error.message}"
                     }
@@ -136,10 +143,13 @@ class ExerciseSessionActivity : AppCompatActivity() {
                 .build()
 
             poseLandmarker = PoseLandmarker.createFromOptions(this, options)
+            android.util.Log.d("MEDIAPIPE", "MediaPipe setup successful")
 
         } catch (e: Exception) {
+            android.util.Log.e("MEDIAPIPE", "Setup failed: ${e.message}")
             runOnUiThread {
-                tvLiveFeedback.text = "Failed to load model"
+                tvLiveFeedback.text = "Failed to load model: ${e.message}"
+                tvLiveFeedback.setTextColor(Color.parseColor("#FF3B30"))
             }
         }
     }
@@ -156,6 +166,7 @@ class ExerciseSessionActivity : AppCompatActivity() {
 
             val analyzer = ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
                 .build()
                 .also {
                     it.setAnalyzer(cameraExecutor) { imageProxy ->
@@ -172,41 +183,67 @@ class ExerciseSessionActivity : AppCompatActivity() {
                     preview,
                     analyzer
                 )
+                android.util.Log.d("CAMERA", "Camera started successfully")
             } catch (e: Exception) {
+                android.util.Log.e("CAMERA", "Camera failed: ${e.message}")
                 runOnUiThread {
                     tvLiveFeedback.text = "Camera failed: ${e.message}"
+                    tvLiveFeedback.setTextColor(Color.parseColor("#FF3B30"))
                 }
             }
         }, ContextCompat.getMainExecutor(this))
     }
 
-    // ─── Process Frame ────────────────────────────────
+    // ─── Process Each Camera Frame ────────────────────
     private fun processImageProxy(imageProxy: ImageProxy) {
-        val bitmap  = imageProxy.toBitmap()
-        val rotated = rotateBitmap(bitmap, imageProxy.imageInfo.rotationDegrees.toFloat())
-        val mpImage = BitmapImageBuilder(rotated).build()
-        poseLandmarker.detectAsync(mpImage, System.currentTimeMillis())
-        imageProxy.close()
+        try {
+            val bitmap  = imageProxy.toBitmap()
+            val rotated = rotateBitmap(
+                bitmap,
+                imageProxy.imageInfo.rotationDegrees.toFloat()
+            )
+            val mpImage = BitmapImageBuilder(rotated).build()
+            poseLandmarker.detectAsync(mpImage, System.currentTimeMillis())
+
+            frameCount++
+            if (frameCount % 30 == 0) {
+                android.util.Log.d("CAMERA", "Frames processed: $frameCount")
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("CAMERA", "Frame processing error: ${e.message}")
+        } finally {
+            imageProxy.close()
+        }
     }
 
     private fun rotateBitmap(bitmap: Bitmap, degrees: Float): Bitmap {
         val matrix = Matrix().apply { postRotate(degrees) }
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        return Bitmap.createBitmap(
+            bitmap, 0, 0,
+            bitmap.width, bitmap.height,
+            matrix, true
+        )
     }
 
     // ─── Process MediaPipe Result ─────────────────────
     private fun processResult(result: PoseLandmarkerResult, imgW: Int, imgH: Int) {
 
-        // Update skeleton overlay
         runOnUiThread {
             if (result.landmarks().isEmpty()) {
+                // No person detected — clear overlay
                 poseOverlay.clear()
-                tvLiveFeedback.text = "Stand back so full body is visible 🧍"
+                tvLiveFeedback.text = getNoDetectionMessage()
                 tvLiveFeedback.setTextColor(Color.parseColor("#FF9500"))
                 feedbackDot.setBackgroundResource(R.drawable.circle_red)
+                android.util.Log.d("POSE", "No landmarks detected")
                 return@runOnUiThread
             }
+
+            // Person detected — update overlay
             poseOverlay.setResults(result, imgW, imgH)
+            android.util.Log.d("POSE",
+                "Landmarks detected: ${result.landmarks()[0].size}"
+            )
         }
 
         if (result.landmarks().isEmpty()) return
@@ -219,11 +256,25 @@ class ExerciseSessionActivity : AppCompatActivity() {
 
         when (exerciseName) {
 
-            // ── ARM RAISE ──────────────────────────────
+            // ── ARM RAISE (Lateral raise to shoulder level) ──
             "Arm Raise" -> {
                 val hip      = landmarks[23]
                 val shoulder = landmarks[11]
                 val elbow    = landmarks[13]
+
+                // Check visibility of key landmarks
+                if ((hip.visibility().orElse(0f)) < 0.4f ||
+                    (shoulder.visibility().orElse(0f)) < 0.4f ||
+                    (elbow.visibility().orElse(0f)) < 0.4f) {
+                    runOnUiThread {
+                        tvLiveFeedback.text =
+                            "Show your arm and hip clearly 🧍"
+                        tvLiveFeedback.setTextColor(
+                            Color.parseColor("#FF9500")
+                        )
+                    }
+                    return
+                }
 
                 val rawAngle = calculateAngle(
                     hip.x(),      hip.y(),
@@ -232,30 +283,55 @@ class ExerciseSessionActivity : AppCompatActivity() {
                 )
                 val angle = smoothAngle(rawAngle)
 
-                // Rep counting
-                if (angle < 100 && !isDown) isDown = true
-                if (angle > 160 && isDown) {
+                android.util.Log.d("ANGLE", "Arm angle: $angle")
+
+                // Arm at side      = ~180°
+                // Arm at shoulder  = ~80° to 100° (T-shape)
+                // Rep counted when:
+                // 1. Arm UP — angle drops below 100° → isDown = true
+                // 2. Arm DOWN — angle rises above 155° → count rep
+
+                if (angle < 100 && !isDown) {
+                    isDown = true
+                    android.util.Log.d("REP", "Arm UP detected")
+                }
+                if (angle > 155 && isDown) {
                     isDown = false
                     repCount++
+                    android.util.Log.d("REP", "Rep counted: $repCount")
                     runOnUiThread { tvRepCount.text = repCount.toString() }
                     checkSetComplete()
                 }
 
-                isGoodForm = angle in 70.0..110.0
+                isGoodForm = angle in 75.0..105.0
+
                 feedback = when {
-                    angle > 160           -> "Raise your arm to shoulder level ➡️"
-                    angle in 100.0..160.0 -> "Keep raising! Almost there ⬆️"
-                    angle in 70.0..100.0  -> "Perfect! Hold it level 💪"
-                    angle < 70            -> "Too high! Lower to shoulder level ⬇️"
-                    else                  -> "Good form! Keep going 🎯"
+                    angle > 155           -> "Raise your arm to shoulder level ➡️"
+                    angle in 105.0..155.0 -> "Keep raising! Almost there ⬆️"
+                    angle in 75.0..105.0  -> "Perfect T-shape! Hold it 💪"
+                    angle < 75            -> "Too high! Lower to shoulder level ⬇️"
+                    else                  -> "Good form! 🎯"
                 }
             }
 
-            // ── SQUAT ──────────────────────────────────
+            // ── SQUAT ────────────────────────────────────────
             "Squat" -> {
                 val hip   = landmarks[23]
                 val knee  = landmarks[25]
                 val ankle = landmarks[27]
+
+                if ((hip.visibility().orElse(0f)) < 0.4f ||
+                    (knee.visibility().orElse(0f)) < 0.4f ||
+                    (ankle.visibility().orElse(0f)) < 0.4f) {
+                    runOnUiThread {
+                        tvLiveFeedback.text =
+                            "Show your full legs clearly 🧍"
+                        tvLiveFeedback.setTextColor(
+                            Color.parseColor("#FF9500")
+                        )
+                    }
+                    return
+                }
 
                 val rawAngle = calculateAngle(
                     hip.x(),   hip.y(),
@@ -264,52 +340,102 @@ class ExerciseSessionActivity : AppCompatActivity() {
                 )
                 val angle = smoothAngle(rawAngle)
 
-                // Rep counting
-                if (angle < 90 && !isDown) isDown = true
+                android.util.Log.d("ANGLE", "Squat angle: $angle")
+
+                // Standing  = ~170°
+                // Squat     = ~80° to 90°
+                if (angle < 90 && !isDown) {
+                    isDown = true
+                    android.util.Log.d("REP", "Squat DOWN detected")
+                }
                 if (angle > 160 && isDown) {
                     isDown = false
                     repCount++
+                    android.util.Log.d("REP", "Squat rep counted: $repCount")
                     runOnUiThread { tvRepCount.text = repCount.toString() }
                     checkSetComplete()
                 }
 
                 isGoodForm = angle in 80.0..170.0
+
                 feedback = when {
-                    angle > 170 -> "Squat lower — bend your knees more 🔽"
-                    angle < 70  -> "Too deep! Come up slightly 🔼"
+                    angle > 170          -> "Squat lower — bend knees more 🔽"
+                    angle < 70           -> "Too deep! Come up slightly 🔼"
                     angle in 80.0..100.0 -> "Perfect squat depth! 🎯"
-                    else        -> "Good form! Keep going 💪"
+                    else                 -> "Good form! Keep going 💪"
                 }
             }
 
-            // ── NECK STRETCH ───────────────────────────
+            // ── NECK STRETCH ──────────────────────────────────
+            // Only upper body needed — no full body required
             "Neck Stretch" -> {
+                val nose          = landmarks[0]
                 val leftShoulder  = landmarks[11]
                 val rightShoulder = landmarks[12]
-                val nose          = landmarks[0]
 
-                // Check if head is tilting sideways
-                val shoulderMidX = (leftShoulder.x() + rightShoulder.x()) / 2
-                val headOffset   = abs(nose.x() - shoulderMidX)
-
-                // Good stretch = head offset > 0.05 from center
-                isGoodForm = headOffset > 0.05f
-                feedback = when {
-                    headOffset < 0.03f -> "Tilt your head to the side gently 🧘"
-                    headOffset in 0.03f..0.07f -> "Keep stretching a little more ↔️"
-                    headOffset > 0.07f -> "Perfect stretch! Hold it 🎯"
-                    else -> "Hold the stretch gently 🧘"
+                // Check only upper body landmarks
+                if ((nose.visibility().orElse(0f)) < 0.4f ||
+                    (leftShoulder.visibility().orElse(0f)) < 0.4f ||
+                    (rightShoulder.visibility().orElse(0f)) < 0.4f) {
+                    runOnUiThread {
+                        tvLiveFeedback.text =
+                            "Show head and shoulders clearly 🧍"
+                        tvLiveFeedback.setTextColor(
+                            Color.parseColor("#FF9500")
+                        )
+                    }
+                    return
                 }
 
-                // For neck stretch count reps differently
-                // Each time head returns to center = 1 rep
-                if (headOffset < 0.02f && isDown) {
-                    isDown = false
-                    repCount++
-                    runOnUiThread { tvRepCount.text = repCount.toString() }
-                    checkSetComplete()
+                // Midpoint between shoulders
+                val shoulderMidX =
+                    (leftShoulder.x() + rightShoulder.x()) / 2f
+                val shoulderMidY =
+                    (leftShoulder.y() + rightShoulder.y()) / 2f
+
+                // Head must be above shoulders
+                val isHeadAboveShoulders = nose.y() < shoulderMidY
+
+                if (!isHeadAboveShoulders) {
+                    isGoodForm = false
+                    feedback = "Sit up straight — keep head above shoulders 🧍"
+                } else {
+                    val lateralOffset = abs(nose.x() - shoulderMidX)
+                    android.util.Log.d("NECK",
+                        "Lateral offset: $lateralOffset"
+                    )
+
+                    // Head returns to center → count rep
+                    if (lateralOffset < 0.02f && isDown) {
+                        isDown = false
+                        repCount++
+                        android.util.Log.d("REP",
+                            "Neck stretch rep counted: $repCount"
+                        )
+                        runOnUiThread {
+                            tvRepCount.text = repCount.toString()
+                        }
+                        checkSetComplete()
+                    }
+
+                    // Head tilted enough → mark as down
+                    if (lateralOffset > 0.08f) isDown = true
+
+                    isGoodForm = lateralOffset > 0.06f
+
+                    feedback = when {
+                        lateralOffset < 0.02f ->
+                            "Tilt your head to the side gently ↔️"
+                        lateralOffset in 0.02f..0.06f ->
+                            "Keep stretching more ➡️"
+                        lateralOffset in 0.06f..0.10f ->
+                            "Good stretch! Hold it 🧘"
+                        lateralOffset > 0.10f ->
+                            "Perfect range of motion! 🎯"
+                        else ->
+                            "Hold the stretch gently 🧘"
+                    }
                 }
-                if (headOffset > 0.07f) isDown = true
             }
 
             else -> {
@@ -318,7 +444,6 @@ class ExerciseSessionActivity : AppCompatActivity() {
             }
         }
 
-        // Track accuracy
         if (isGoodForm) goodFrames++
 
         runOnUiThread {
@@ -333,23 +458,36 @@ class ExerciseSessionActivity : AppCompatActivity() {
         }
     }
 
+    // ─── Message when no person detected ─────────────
+    private fun getNoDetectionMessage(): String {
+        return when (exerciseName) {
+            "Neck Stretch" ->
+                "Show head and shoulders in frame 🧍"
+            "Arm Raise" ->
+                "Show upper body and arm in frame 🧍"
+            else ->
+                "Stand back so full body is visible 🧍"
+        }
+    }
+
     // ─── Check if Set is Complete ─────────────────────
     private fun checkSetComplete() {
-        if (repCount >= totalReps * currentSet) {
+        if (repCount >= totalReps * currentSet && !isBreakShowing) {
             if (currentSet >= totalSets) {
-                // All sets done!
                 runOnUiThread {
                     isStopped = true
                     Toast.makeText(
                         this,
                         "All sets complete! Amazing work! 🎉",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
-                    goToFeedback()
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        goToFeedback()
+                    }, 1500)
                 }
             } else {
-                // One set done — ask for break
                 runOnUiThread {
+                    isBreakShowing = true
                     showBreakDialog()
                 }
             }
@@ -363,16 +501,21 @@ class ExerciseSessionActivity : AppCompatActivity() {
             .setTitle("Set $setJustDone Complete! 🔥")
             .setMessage(
                 "Great job! You completed set $setJustDone of $totalSets.\n\n" +
-                        "Would you like a short break before the next set?"
+                        "Would you like a 30 second break before the next set?"
             )
             .setPositiveButton("Take a Break 😴") { _, _ ->
-                // Show countdown then continue
                 showBreakCountdown()
             }
             .setNegativeButton("Continue Now 💪") { _, _ ->
                 currentSet++
+                isBreakShowing = false
                 runOnUiThread {
                     tvSetCount.text = "$currentSet/$totalSets"
+                    Toast.makeText(
+                        this,
+                        "Set $currentSet — Go! 💪",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             .setCancelable(false)
@@ -384,33 +527,45 @@ class ExerciseSessionActivity : AppCompatActivity() {
         var seconds = 30
         val dialog = AlertDialog.Builder(this)
             .setTitle("Rest Time 😴")
-            .setMessage("Starting next set in $seconds seconds...")
-            .setNegativeButton("Skip Break") { d, _ ->
+            .setMessage("Starting set ${currentSet + 1} in $seconds seconds...")
+            .setNegativeButton("Skip Break 💪") { d, _ ->
                 d.dismiss()
                 currentSet++
-                runOnUiThread { tvSetCount.text = "$currentSet/$totalSets" }
+                isBreakShowing = false
+                runOnUiThread {
+                    tvSetCount.text = "$currentSet/$totalSets"
+                    Toast.makeText(
+                        this,
+                        "Set $currentSet — Go! 💪",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
             .setCancelable(false)
             .create()
 
         dialog.show()
 
-        // Countdown timer
-        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        val handler = Handler(Looper.getMainLooper())
         val runnable = object : Runnable {
             override fun run() {
                 seconds--
                 if (seconds <= 0) {
                     dialog.dismiss()
                     currentSet++
-                    tvSetCount.text = "$currentSet/$totalSets"
-                    Toast.makeText(
-                        this@ExerciseSessionActivity,
-                        "Set $currentSet starting! Go! 💪",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    isBreakShowing = false
+                    runOnUiThread {
+                        tvSetCount.text = "$currentSet/$totalSets"
+                        Toast.makeText(
+                            this@ExerciseSessionActivity,
+                            "Set $currentSet — Go! 💪",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 } else {
-                    dialog.setMessage("Starting set ${ currentSet + 1 } in $seconds seconds...")
+                    dialog.setMessage(
+                        "Starting set ${currentSet + 1} in $seconds seconds..."
+                    )
                     handler.postDelayed(this, 1000)
                 }
             }
@@ -420,10 +575,14 @@ class ExerciseSessionActivity : AppCompatActivity() {
 
     // ─── Go to Feedback ───────────────────────────────
     private fun goToFeedback() {
-        // Calculate final accuracy
         val accuracy = if (totalFrames == 0) 0
-        else ((goodFrames.toFloat() / totalFrames) * 100).toInt()
+        else ((goodFrames.toFloat() / totalFrames) * 100)
+            .toInt()
             .coerceIn(0, 100)
+
+        android.util.Log.d("ACCURACY",
+            "Good: $goodFrames / Total: $totalFrames = $accuracy%"
+        )
 
         val intent = Intent(this, FeedbackActivity::class.java)
         intent.putExtra("EXERCISE_NAME", exerciseName)
@@ -440,7 +599,7 @@ class ExerciseSessionActivity : AppCompatActivity() {
         return angleBuffer.average()
     }
 
-    // ─── Calculate Angle Between 3 Points ────────────
+    // ─── Calculate Angle at Point B ──────────────────
     private fun calculateAngle(
         ax: Float, ay: Float,
         bx: Float, by: Float,
@@ -465,11 +624,16 @@ class ExerciseSessionActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 100 &&
             grantResults.isNotEmpty() &&
-            grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            grantResults[0] == PackageManager.PERMISSION_GRANTED
+        ) {
             setupMediaPipe()
             startCamera()
         } else {
-            Toast.makeText(this, "Camera permission required", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "Camera permission required for pose detection",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -478,6 +642,8 @@ class ExerciseSessionActivity : AppCompatActivity() {
         super.onDestroy()
         isStopped = true
         cameraExecutor.shutdown()
-        if (::poseLandmarker.isInitialized) poseLandmarker.close()
+        if (::poseLandmarker.isInitialized) {
+            poseLandmarker.close()
+        }
     }
 }
