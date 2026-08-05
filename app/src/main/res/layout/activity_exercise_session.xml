@@ -63,7 +63,7 @@
                     android:id="@+id/tvExerciseLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Arm Raise"
+                    android:text="Right Arm Lateral Raise"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp"
                     android:textStyle="bold"/>

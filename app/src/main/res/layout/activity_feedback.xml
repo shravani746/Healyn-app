@@ -62,7 +62,7 @@
                 android:id="@+id/tvExerciseName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Arm Raise"
+                android:text="Right Arm Lateral Raise"
                 android:textColor="#70A0CC"
                 android:textSize="12sp"
                 android:layout_marginTop="3dp" />

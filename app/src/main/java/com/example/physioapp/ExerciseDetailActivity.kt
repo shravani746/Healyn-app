@@ -72,13 +72,13 @@ class ExerciseDetailActivity : AppCompatActivity() {
         return when (exercise) {
             "Squat"        -> "Medium"
             "Neck Stretch" -> "Easy"
-            else           -> "Easy"
+            else           -> "Easy"   // Right Arm Lateral Raise still falls here — fine, "Easy" was already the default
         }
     }
 
     private fun getDescription(exercise: String): String {
         return when (exercise) {
-            "Arm Raise"    -> "The lateral arm raise strengthens the shoulder muscles and improves range of motion. Commonly prescribed for shoulder rehabilitation and rotator cuff recovery."
+            "Right Arm Lateral Raise" -> "The lateral arm raise strengthens the shoulder muscles and improves range of motion. Commonly prescribed for shoulder rehabilitation and rotator cuff recovery."
             "Squat"        -> "The squat strengthens the quadriceps, hamstrings, and glutes. It is used in knee rehabilitation and lower body strengthening programs."
             "Neck Stretch" -> "The neck stretch relieves tension in the cervical muscles and improves flexibility. It is recommended for patients with neck pain or stiffness."
             else           -> "Follow your physiotherapist's instructions for this exercise."
@@ -87,11 +87,10 @@ class ExerciseDetailActivity : AppCompatActivity() {
 
     private fun getVideoResource(exercise: String): Int {
         return when (exercise) {
-
-             "Arm Raise"    -> R.raw.arm_raise
-             "Squat"        -> R.raw.squat
-             "Neck Stretch" -> R.raw.neck_stretch
-            else           -> 0
+            "Right Arm Lateral Raise" -> R.raw.arm_raise   // keep the actual video file name as-is, only the key changes
+            "Squat"                   -> R.raw.squat
+            "Neck Stretch"            -> R.raw.neck_stretch
+            else                      -> 0
         }
     }
 }

@@ -66,10 +66,10 @@ class FeedbackActivity : AppCompatActivity() {
 
     private fun getFeedback(exercise: String): String {
         return when (exercise) {
-            "Arm Raise"    -> "• Arm too low at peak position\n• Keep elbow straight\n• Maintain a steady pace"
-            "Squat"        -> "• Knees going past toes\n• Keep your back straight\n• Lower hips more"
-            "Neck Stretch" -> "• Hold the stretch a bit longer\n• Move slowly and gently\n• Breathe steadily"
-            else           -> "• Great effort!\n• Keep practicing daily\n• Consistency is key"
+            "Right Arm Lateral Raise" -> "• Try to reach fully overhead each rep\n• Keep your elbow straight throughout\n• Move slowly through the full range"
+            "Squat"                   -> "• Try to bend your knees a bit more each rep\n• Keep your chest up and back straight\n• Go at a slow, controlled pace"
+            "Neck Stretch"            -> "• Hold each stretch for the full 3 seconds\n• Tilt a little further toward your shoulder\n• Move slowly and avoid sudden jerks"
+            else                      -> "• Great effort\n• Keep practicing daily\n• Consistency is key"
         }
     }
 }

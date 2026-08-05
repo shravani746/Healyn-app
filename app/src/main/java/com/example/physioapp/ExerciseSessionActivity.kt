@@ -51,19 +51,38 @@ class ExerciseSessionActivity : AppCompatActivity() {
     private lateinit var cameraExecutor: ExecutorService
 
     // ─── Session state ────────────────────────────────
-    private var exerciseName = "Arm Raise"
+    private var exerciseName = "Right Arm Lateral Raise"
     private var totalSets    = 3
     private var totalReps    = 10
     private var currentSet   = 1
     private var repCount     = 0
-    private var goodFrames   = 0
-    private var totalFrames  = 0
-    private var isDown       = false
     private var isStopped    = false
     private var isBreakShowing = false
 
-    // ─── Angle smoothing (last 5 readings) ───────────
-    private val angleBuffer = ArrayDeque<Double>(5)
+    // ─── Right Arm Lateral Raise rep-quality state ────
+    private enum class ArmPhase { WAITING_DOWN, WAITING_T_UP, WAITING_OVERHEAD, WAITING_T_DOWN, WAITING_RETURN_DOWN }
+    private var armPhase             = ArmPhase.WAITING_DOWN
+    private var peakShoulderAngle    = 0.0
+    private var minElbowAngleThisRep = 180.0
+    private val armRepScores         = mutableListOf<Double>()
+    private val armShoulderAngleBuffer = ArrayDeque<Double>(5)
+
+    // ─── Squat rep-quality state ──────────────────────
+    private enum class SquatPhase { WAITING_STAND, WAITING_SQUAT, WAITING_RETURN_STAND }
+    private var squatPhase           = SquatPhase.WAITING_STAND
+    private var minKneeAngleThisRep  = 180.0
+    private var minBackAngleThisRep  = 180.0
+    private val squatRepScores       = mutableListOf<Double>()
+    private val kneeAngleBuffer      = ArrayDeque<Double>(5)
+    private val backAngleBuffer      = ArrayDeque<Double>(5)
+
+    // ─── Neck Stretch rep-quality state ───────────────
+    private enum class NeckPhase { WAITING_CENTER, HOLDING_TILT, WAITING_RETURN_CENTER }
+    private var neckPhase        = NeckPhase.WAITING_CENTER
+    private var neckHoldStartTime = 0L
+    private var neckHeldMillis    = 0L
+    private var neckMaxTiltRatio  = 0.0
+    private val neckRepScores     = mutableListOf<Double>()
 
     // ─── Debug logging ────────────────────────────────
     private var frameCount = 0
@@ -72,7 +91,7 @@ class ExerciseSessionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_exercise_session)
 
-        exerciseName = intent.getStringExtra("EXERCISE_NAME") ?: "Arm Raise"
+        exerciseName = intent.getStringExtra("EXERCISE_NAME") ?: "Right Arm Lateral Raise"
         totalSets    = intent.getIntExtra("EXERCISE_SETS", 3)
         totalReps    = intent.getIntExtra("EXERCISE_REPS", 10)
 
@@ -170,7 +189,7 @@ class ExerciseSessionActivity : AppCompatActivity() {
                 .build()
                 .also {
                     it.setAnalyzer(cameraExecutor) { imageProxy ->
-                        if (!isStopped) processImageProxy(imageProxy)
+                        if (!isStopped && !isBreakShowing) processImageProxy(imageProxy)
                         else imageProxy.close()
                     }
                 }
@@ -230,7 +249,6 @@ class ExerciseSessionActivity : AppCompatActivity() {
 
         runOnUiThread {
             if (result.landmarks().isEmpty()) {
-                // No person detected — clear overlay
                 poseOverlay.clear()
                 tvLiveFeedback.text = getNoDetectionMessage()
                 tvLiveFeedback.setTextColor(Color.parseColor("#FF9500"))
@@ -238,213 +256,259 @@ class ExerciseSessionActivity : AppCompatActivity() {
                 android.util.Log.d("POSE", "No landmarks detected")
                 return@runOnUiThread
             }
-
-            // Person detected — update overlay
             poseOverlay.setResults(result, imgW, imgH)
-            android.util.Log.d("POSE",
-                "Landmarks detected: ${result.landmarks()[0].size}"
-            )
         }
 
         if (result.landmarks().isEmpty()) return
 
         val landmarks = result.landmarks()[0]
-        totalFrames++
 
         val feedback:   String
         val isGoodForm: Boolean
 
         when (exerciseName) {
 
-            // ── ARM RAISE (Lateral raise to shoulder level) ──
-            "Arm Raise" -> {
-                val hip      = landmarks[23]
-                val shoulder = landmarks[11]
-                val elbow    = landmarks[13]
+            // ── RIGHT ARM LATERAL RAISE (side → T → overhead → T → side, elbow straight) ──
+            "Right Arm Lateral Raise" -> {
+                val hip      = landmarks[24]
+                val shoulder = landmarks[12]
+                val elbow    = landmarks[14]
+                val wrist    = landmarks[16]
 
-                // Check visibility of key landmarks
-                if ((hip.visibility().orElse(0f)) < 0.4f ||
-                    (shoulder.visibility().orElse(0f)) < 0.4f ||
-                    (elbow.visibility().orElse(0f)) < 0.4f) {
+                if (listOf(hip, shoulder, elbow, wrist).any { (it.visibility().orElse(0f)) < 0.4f }) {
                     runOnUiThread {
-                        tvLiveFeedback.text =
-                            "Show your arm and hip clearly 🧍"
-                        tvLiveFeedback.setTextColor(
-                            Color.parseColor("#FF9500")
-                        )
+                        tvLiveFeedback.text = "Show your right arm and torso clearly"
+                        tvLiveFeedback.setTextColor(Color.parseColor("#FF9500"))
                     }
                     return
                 }
 
-                val rawAngle = calculateAngle(
-                    hip.x(),      hip.y(),
-                    shoulder.x(), shoulder.y(),
-                    elbow.x(),    elbow.y()
+                val rawShoulderAngle = calculateAngle(
+                    hip.x(), hip.y(), shoulder.x(), shoulder.y(), elbow.x(), elbow.y()
                 )
-                val angle = smoothAngle(rawAngle)
+                val shoulderAngle = smoothAngle(rawShoulderAngle, armShoulderAngleBuffer)
+                val elbowAngle = calculateAngle(
+                    shoulder.x(), shoulder.y(), elbow.x(), elbow.y(), wrist.x(), wrist.y()
+                )
 
-                android.util.Log.d("ANGLE", "Arm angle: $angle")
+                android.util.Log.d("ANGLE_CHECK",
+                    "shoulderAngle=$shoulderAngle elbowAngle=$elbowAngle phase=$armPhase")
 
-                // Arm at side      = ~180°
-                // Arm at shoulder  = ~80° to 100° (T-shape)
-                // Rep counted when:
-                // 1. Arm UP — angle drops below 100° → isDown = true
-                // 2. Arm DOWN — angle rises above 155° → count rep
-
-                if (angle < 100 && !isDown) {
-                    isDown = true
-                    android.util.Log.d("REP", "Arm UP detected")
-                }
-                if (angle > 155 && isDown) {
-                    isDown = false
-                    repCount++
-                    android.util.Log.d("REP", "Rep counted: $repCount")
-                    runOnUiThread { tvRepCount.text = repCount.toString() }
-                    checkSetComplete()
+                if (armPhase != ArmPhase.WAITING_DOWN) {
+                    peakShoulderAngle    = maxOf(peakShoulderAngle, shoulderAngle)
+                    minElbowAngleThisRep = minOf(minElbowAngleThisRep, elbowAngle)
                 }
 
-                isGoodForm = angle in 75.0..105.0
+                when (armPhase) {
+                    ArmPhase.WAITING_DOWN -> {
+                        if (shoulderAngle < 30.0) {
+                            armPhase = ArmPhase.WAITING_T_UP
+                            peakShoulderAngle = shoulderAngle
+                            minElbowAngleThisRep = elbowAngle
+                        }
+                    }
+                    ArmPhase.WAITING_T_UP -> {
+                        if (shoulderAngle in 70.0..110.0) armPhase = ArmPhase.WAITING_OVERHEAD
+                    }
+                    ArmPhase.WAITING_OVERHEAD -> {
+                        if (shoulderAngle > 150.0) armPhase = ArmPhase.WAITING_T_DOWN
+                    }
+                    ArmPhase.WAITING_T_DOWN -> {
+                        if (shoulderAngle in 70.0..110.0) armPhase = ArmPhase.WAITING_RETURN_DOWN
+                    }
+                    ArmPhase.WAITING_RETURN_DOWN -> {
+                        if (shoulderAngle < 30.0) {
+                            val romScore   = ((peakShoulderAngle - 150.0) / 30.0).coerceIn(0.0, 1.0)
+                            val elbowScore = ((minElbowAngleThisRep - 120.0) / 40.0).coerceIn(0.0, 1.0)
+                            val repScore   = (romScore + elbowScore) / 2.0
+                            armRepScores.add(repScore)
 
+                            repCount++
+                            android.util.Log.d("REP",
+                                "Arm rep $repCount: rom=$romScore elbow=$elbowScore score=$repScore")
+                            runOnUiThread { tvRepCount.text = repCount.toString() }
+                            checkSetComplete()
+
+                            armPhase = ArmPhase.WAITING_DOWN
+                            peakShoulderAngle = 0.0
+                            minElbowAngleThisRep = 180.0
+                        }
+                    }
+                }
+
+                isGoodForm = elbowAngle > 150.0
                 feedback = when {
-                    angle > 155           -> "Raise your arm to shoulder level ➡️"
-                    angle in 105.0..155.0 -> "Keep raising! Almost there ⬆️"
-                    angle in 75.0..105.0  -> "Perfect T-shape! Hold it 💪"
-                    angle < 75            -> "Too high! Lower to shoulder level ⬇️"
-                    else                  -> "Good form! 🎯"
+                    elbowAngle <= 150.0 -> "Straighten your elbow"
+                    armPhase == ArmPhase.WAITING_DOWN -> "Start with your arm relaxed at your side"
+                    armPhase == ArmPhase.WAITING_T_UP -> "Raise your arm out to shoulder height"
+                    armPhase == ArmPhase.WAITING_OVERHEAD -> "Keep raising your arm overhead"
+                    armPhase == ArmPhase.WAITING_T_DOWN -> "Lower your arm back to shoulder height"
+                    else -> "Lower your arm back down to your side"
                 }
             }
 
-            // ── SQUAT ────────────────────────────────────────
+            // ── SQUAT (stand → squat → stand, watching knee depth + back lean) ──
             "Squat" -> {
-                val hip   = landmarks[23]
-                val knee  = landmarks[25]
-                val ankle = landmarks[27]
+                val shoulder = landmarks[11]
+                val hip      = landmarks[23]
+                val knee     = landmarks[25]
+                val ankle    = landmarks[27]
 
-                if ((hip.visibility().orElse(0f)) < 0.4f ||
-                    (knee.visibility().orElse(0f)) < 0.4f ||
-                    (ankle.visibility().orElse(0f)) < 0.4f) {
+                if (listOf(shoulder, hip, knee, ankle).any { (it.visibility().orElse(0f)) < 0.4f }) {
                     runOnUiThread {
-                        tvLiveFeedback.text =
-                            "Show your full legs clearly 🧍"
-                        tvLiveFeedback.setTextColor(
-                            Color.parseColor("#FF9500")
-                        )
+                        tvLiveFeedback.text = "Show your full body clearly"
+                        tvLiveFeedback.setTextColor(Color.parseColor("#FF9500"))
                     }
                     return
                 }
 
-                val rawAngle = calculateAngle(
-                    hip.x(),   hip.y(),
-                    knee.x(),  knee.y(),
-                    ankle.x(), ankle.y()
+                val rawKneeAngle = calculateAngle(
+                    hip.x(), hip.y(), knee.x(), knee.y(), ankle.x(), ankle.y()
                 )
-                val angle = smoothAngle(rawAngle)
+                val kneeAngle = smoothAngle(rawKneeAngle, kneeAngleBuffer)
 
-                android.util.Log.d("ANGLE", "Squat angle: $angle")
+                val rawBackAngle = calculateAngle(
+                    shoulder.x(), shoulder.y(), hip.x(), hip.y(), knee.x(), knee.y()
+                )
+                val backAngle = smoothAngle(rawBackAngle, backAngleBuffer)
 
-                // Standing  = ~170°
-                // Squat     = ~80° to 90°
-                if (angle < 90 && !isDown) {
-                    isDown = true
-                    android.util.Log.d("REP", "Squat DOWN detected")
-                }
-                if (angle > 160 && isDown) {
-                    isDown = false
-                    repCount++
-                    android.util.Log.d("REP", "Squat rep counted: $repCount")
-                    runOnUiThread { tvRepCount.text = repCount.toString() }
-                    checkSetComplete()
+                android.util.Log.d("ANGLE_CHECK",
+                    "kneeAngle=$kneeAngle backAngle=$backAngle phase=$squatPhase")
+
+                if (squatPhase != SquatPhase.WAITING_STAND) {
+                    minKneeAngleThisRep = minOf(minKneeAngleThisRep, kneeAngle)
+                    minBackAngleThisRep = minOf(minBackAngleThisRep, backAngle)
                 }
 
-                isGoodForm = angle in 80.0..170.0
+                when (squatPhase) {
+                    SquatPhase.WAITING_STAND -> {
+                        if (kneeAngle > 160.0) squatPhase = SquatPhase.WAITING_SQUAT
+                    }
+                    SquatPhase.WAITING_SQUAT -> {
+                        if (kneeAngle < 130.0) {
+                            squatPhase = SquatPhase.WAITING_RETURN_STAND
+                            minKneeAngleThisRep = kneeAngle
+                            minBackAngleThisRep = backAngle
+                        }
+                    }
+                    SquatPhase.WAITING_RETURN_STAND -> {
+                        if (kneeAngle > 160.0) {
+                            // Lenient depth target — full credit around a 140° knee bend,
+                            // not a strict 90° squat (per patient/elderly use case).
+                            val depthScore = ((170.0 - minKneeAngleThisRep) / 30.0).coerceIn(0.0, 1.0)
+                            val backScore  = ((minBackAngleThisRep - 90.0) / 60.0).coerceIn(0.0, 1.0)
+                            val repScore   = (depthScore + backScore) / 2.0
+                            squatRepScores.add(repScore)
 
+                            repCount++
+                            android.util.Log.d("REP",
+                                "Squat rep $repCount: depth=$depthScore back=$backScore score=$repScore")
+                            runOnUiThread { tvRepCount.text = repCount.toString() }
+                            checkSetComplete()
+
+                            squatPhase = SquatPhase.WAITING_STAND
+                            minKneeAngleThisRep = 180.0
+                            minBackAngleThisRep = 180.0
+                        }
+                    }
+                }
+
+                isGoodForm = backAngle > 110.0
                 feedback = when {
-                    angle > 170          -> "Squat lower — bend knees more 🔽"
-                    angle < 70           -> "Too deep! Come up slightly 🔼"
-                    angle in 80.0..100.0 -> "Perfect squat depth! 🎯"
-                    else                 -> "Good form! Keep going 💪"
+                    backAngle <= 110.0 -> "Keep your chest up, don't lean too far forward"
+                    squatPhase == SquatPhase.WAITING_STAND -> "Stand tall to begin"
+                    squatPhase == SquatPhase.WAITING_SQUAT -> "Lower down, bend your knees"
+                    else -> "Push back up to standing"
                 }
             }
 
-            // ── NECK STRETCH ──────────────────────────────────
-            // Only upper body needed — no full body required
+            // ── NECK STRETCH (tilt toward right shoulder, hold 3 seconds, return to center) ──
             "Neck Stretch" -> {
                 val nose          = landmarks[0]
                 val leftShoulder  = landmarks[11]
                 val rightShoulder = landmarks[12]
 
-                // Check only upper body landmarks
-                if ((nose.visibility().orElse(0f)) < 0.4f ||
-                    (leftShoulder.visibility().orElse(0f)) < 0.4f ||
-                    (rightShoulder.visibility().orElse(0f)) < 0.4f) {
+                if (listOf(nose, leftShoulder, rightShoulder).any { (it.visibility().orElse(0f)) < 0.4f }) {
                     runOnUiThread {
-                        tvLiveFeedback.text =
-                            "Show head and shoulders clearly 🧍"
-                        tvLiveFeedback.setTextColor(
-                            Color.parseColor("#FF9500")
-                        )
+                        tvLiveFeedback.text = "Show your head and shoulders clearly"
+                        tvLiveFeedback.setTextColor(Color.parseColor("#FF9500"))
                     }
                     return
                 }
 
-                // Midpoint between shoulders
-                val shoulderMidX =
-                    (leftShoulder.x() + rightShoulder.x()) / 2f
-                val shoulderMidY =
-                    (leftShoulder.y() + rightShoulder.y()) / 2f
-
-                // Head must be above shoulders
+                val shoulderMidX  = (leftShoulder.x() + rightShoulder.x()) / 2f
+                val shoulderMidY  = (leftShoulder.y() + rightShoulder.y()) / 2f
+                val shoulderHalfWidth = rightShoulder.x() - shoulderMidX
                 val isHeadAboveShoulders = nose.y() < shoulderMidY
 
                 if (!isHeadAboveShoulders) {
                     isGoodForm = false
-                    feedback = "Sit up straight — keep head above shoulders 🧍"
+                    feedback = "Sit up straight, keep your head above your shoulders"
+                } else if (abs(shoulderHalfWidth) < 0.001f) {
+                    isGoodForm = false
+                    feedback = "Face the camera directly"
                 } else {
-                    val lateralOffset = abs(nose.x() - shoulderMidX)
-                    android.util.Log.d("NECK",
-                        "Lateral offset: $lateralOffset"
-                    )
+                    val tiltRatio = ((nose.x() - shoulderMidX) / shoulderHalfWidth).toDouble()
+                    val now = System.currentTimeMillis()
 
-                    // Head returns to center → count rep
-                    if (lateralOffset < 0.02f && isDown) {
-                        isDown = false
-                        repCount++
-                        android.util.Log.d("REP",
-                            "Neck stretch rep counted: $repCount"
-                        )
-                        runOnUiThread {
-                            tvRepCount.text = repCount.toString()
+                    android.util.Log.d("ANGLE_CHECK", "tiltRatio=$tiltRatio phase=$neckPhase")
+
+                    when (neckPhase) {
+                        NeckPhase.WAITING_CENTER -> {
+                            if (tiltRatio > 0.5) {
+                                neckPhase = NeckPhase.HOLDING_TILT
+                                neckHoldStartTime = now
+                                neckHeldMillis = 0L
+                                neckMaxTiltRatio = tiltRatio
+                            }
                         }
-                        checkSetComplete()
+                        NeckPhase.HOLDING_TILT -> {
+                            neckMaxTiltRatio = maxOf(neckMaxTiltRatio, tiltRatio)
+                            if (tiltRatio > 0.5) {
+                                neckHeldMillis = now - neckHoldStartTime
+                            } else {
+                                neckPhase = NeckPhase.WAITING_RETURN_CENTER
+                            }
+                        }
+                        NeckPhase.WAITING_RETURN_CENTER -> { /* waiting for center below */ }
                     }
 
-                    // Head tilted enough → mark as down
-                    if (lateralOffset > 0.08f) isDown = true
+                    if (neckPhase != NeckPhase.WAITING_CENTER && tiltRatio < 0.15) {
+                        val holdScore  = (neckHeldMillis / 3000.0).coerceIn(0.0, 1.0)
+                        val depthScore = ((neckMaxTiltRatio - 0.5) / 0.5).coerceIn(0.0, 1.0)
+                        val repScore   = (holdScore + depthScore) / 2.0
+                        neckRepScores.add(repScore)
 
-                    isGoodForm = lateralOffset > 0.06f
+                        repCount++
+                        android.util.Log.d("REP",
+                            "Neck rep $repCount: hold=$holdScore depth=$depthScore score=$repScore")
+                        runOnUiThread { tvRepCount.text = repCount.toString() }
+                        checkSetComplete()
 
+                        neckPhase = NeckPhase.WAITING_CENTER
+                        neckHeldMillis = 0L
+                        neckMaxTiltRatio = 0.0
+                    }
+
+                    isGoodForm = tiltRatio > 0.5
                     feedback = when {
-                        lateralOffset < 0.02f ->
-                            "Tilt your head to the side gently ↔️"
-                        lateralOffset in 0.02f..0.06f ->
-                            "Keep stretching more ➡️"
-                        lateralOffset in 0.06f..0.10f ->
-                            "Good stretch! Hold it 🧘"
-                        lateralOffset > 0.10f ->
-                            "Perfect range of motion! 🎯"
+                        neckPhase == NeckPhase.WAITING_CENTER ->
+                            "Tilt your head gently toward your right shoulder"
+                        neckPhase == NeckPhase.HOLDING_TILT && neckHeldMillis < 3000 ->
+                            "Hold the stretch a little longer"
+                        neckPhase == NeckPhase.HOLDING_TILT ->
+                            "Great, hold a moment more"
                         else ->
-                            "Hold the stretch gently 🧘"
+                            "Return your head to center"
                     }
                 }
             }
 
             else -> {
                 isGoodForm = true
-                feedback   = "Keep going! 💪"
+                feedback   = "Keep going"
             }
         }
-
-        if (isGoodForm) goodFrames++
 
         runOnUiThread {
             tvLiveFeedback.text = feedback
@@ -461,12 +525,9 @@ class ExerciseSessionActivity : AppCompatActivity() {
     // ─── Message when no person detected ─────────────
     private fun getNoDetectionMessage(): String {
         return when (exerciseName) {
-            "Neck Stretch" ->
-                "Show head and shoulders in frame 🧍"
-            "Arm Raise" ->
-                "Show upper body and arm in frame 🧍"
-            else ->
-                "Stand back so full body is visible 🧍"
+            "Neck Stretch" -> "Show head and shoulders in frame"
+            "Right Arm Lateral Raise" -> "Show upper body and right arm in frame"
+            else -> "Stand back so full body is visible"
         }
     }
 
@@ -476,14 +537,8 @@ class ExerciseSessionActivity : AppCompatActivity() {
             if (currentSet >= totalSets) {
                 runOnUiThread {
                     isStopped = true
-                    Toast.makeText(
-                        this,
-                        "All sets complete! Amazing work! 🎉",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        goToFeedback()
-                    }, 1500)
+                    Toast.makeText(this, "All sets complete! Amazing work!", Toast.LENGTH_LONG).show()
+                    Handler(Looper.getMainLooper()).postDelayed({ goToFeedback() }, 1500)
                 }
             } else {
                 runOnUiThread {
@@ -498,24 +553,15 @@ class ExerciseSessionActivity : AppCompatActivity() {
     private fun showBreakDialog() {
         val setJustDone = currentSet
         AlertDialog.Builder(this)
-            .setTitle("Set $setJustDone Complete! 🔥")
-            .setMessage(
-                "Great job! You completed set $setJustDone of $totalSets.\n\n" +
-                        "Would you like a 30 second break before the next set?"
-            )
-            .setPositiveButton("Take a Break 😴") { _, _ ->
-                showBreakCountdown()
-            }
-            .setNegativeButton("Continue Now 💪") { _, _ ->
+            .setTitle("Set $setJustDone Complete!")
+            .setMessage("Great job! You completed set $setJustDone of $totalSets.\n\nWould you like a 30 second break before the next set?")
+            .setPositiveButton("Take a Break") { _, _ -> showBreakCountdown() }
+            .setNegativeButton("Continue Now") { _, _ ->
                 currentSet++
                 isBreakShowing = false
                 runOnUiThread {
                     tvSetCount.text = "$currentSet/$totalSets"
-                    Toast.makeText(
-                        this,
-                        "Set $currentSet — Go! 💪",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this, "Set $currentSet — Go!", Toast.LENGTH_SHORT).show()
                 }
             }
             .setCancelable(false)
@@ -526,19 +572,15 @@ class ExerciseSessionActivity : AppCompatActivity() {
     private fun showBreakCountdown() {
         var seconds = 30
         val dialog = AlertDialog.Builder(this)
-            .setTitle("Rest Time 😴")
+            .setTitle("Rest Time")
             .setMessage("Starting set ${currentSet + 1} in $seconds seconds...")
-            .setNegativeButton("Skip Break 💪") { d, _ ->
+            .setNegativeButton("Skip Break") { d, _ ->
                 d.dismiss()
                 currentSet++
                 isBreakShowing = false
                 runOnUiThread {
                     tvSetCount.text = "$currentSet/$totalSets"
-                    Toast.makeText(
-                        this,
-                        "Set $currentSet — Go! 💪",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this, "Set $currentSet — Go!", Toast.LENGTH_SHORT).show()
                 }
             }
             .setCancelable(false)
@@ -556,16 +598,10 @@ class ExerciseSessionActivity : AppCompatActivity() {
                     isBreakShowing = false
                     runOnUiThread {
                         tvSetCount.text = "$currentSet/$totalSets"
-                        Toast.makeText(
-                            this@ExerciseSessionActivity,
-                            "Set $currentSet — Go! 💪",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(this@ExerciseSessionActivity, "Set $currentSet — Go!", Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    dialog.setMessage(
-                        "Starting set ${currentSet + 1} in $seconds seconds..."
-                    )
+                    dialog.setMessage("Starting set ${currentSet + 1} in $seconds seconds...")
                     handler.postDelayed(this, 1000)
                 }
             }
@@ -575,14 +611,19 @@ class ExerciseSessionActivity : AppCompatActivity() {
 
     // ─── Go to Feedback ───────────────────────────────
     private fun goToFeedback() {
-        val accuracy = if (totalFrames == 0) 0
-        else ((goodFrames.toFloat() / totalFrames) * 100)
-            .toInt()
-            .coerceIn(0, 100)
+        val accuracy = when (exerciseName) {
+            "Right Arm Lateral Raise" ->
+                if (armRepScores.isEmpty()) 0 else (armRepScores.average() * 100).toInt().coerceIn(0, 100)
+            "Squat" ->
+                if (squatRepScores.isEmpty()) 0 else (squatRepScores.average() * 100).toInt().coerceIn(0, 100)
+            "Neck Stretch" ->
+                if (neckRepScores.isEmpty()) 0 else (neckRepScores.average() * 100).toInt().coerceIn(0, 100)
+            else -> 0
+        }
 
         android.util.Log.d("ACCURACY",
-            "Good: $goodFrames / Total: $totalFrames = $accuracy%"
-        )
+            "exercise=$exerciseName reps=$repCount accuracy=$accuracy% " +
+                    "armScores=$armRepScores squatScores=$squatRepScores neckScores=$neckRepScores")
 
         val intent = Intent(this, FeedbackActivity::class.java)
         intent.putExtra("EXERCISE_NAME", exerciseName)
@@ -592,11 +633,11 @@ class ExerciseSessionActivity : AppCompatActivity() {
         finish()
     }
 
-    // ─── Angle Smoothing ──────────────────────────────
-    private fun smoothAngle(newAngle: Double): Double {
-        if (angleBuffer.size >= 5) angleBuffer.removeFirst()
-        angleBuffer.addLast(newAngle)
-        return angleBuffer.average()
+    // ─── Angle Smoothing (per-angle buffer, not shared) ───
+    private fun smoothAngle(newAngle: Double, buffer: ArrayDeque<Double>): Double {
+        if (buffer.size >= 5) buffer.removeFirst()
+        buffer.addLast(newAngle)
+        return buffer.average()
     }
 
     // ─── Calculate Angle at Point B ──────────────────
@@ -629,11 +670,7 @@ class ExerciseSessionActivity : AppCompatActivity() {
             setupMediaPipe()
             startCamera()
         } else {
-            Toast.makeText(
-                this,
-                "Camera permission required for pose detection",
-                Toast.LENGTH_LONG
-            ).show()
+            Toast.makeText(this, "Camera permission required for pose detection", Toast.LENGTH_LONG).show()
         }
     }
 

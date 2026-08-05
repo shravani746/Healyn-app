@@ -145,7 +145,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Arm Raise"
+                                android:text="Right Arm Lateral Raise"
                                 android:textSize="15sp"
                                 android:textColor="@color/text_primary"
                                 android:fontFamily="sans-serif-medium" />

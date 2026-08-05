@@ -17,7 +17,7 @@ class ExerciseListActivity : AppCompatActivity() {
         val btnNeckStretch = findViewById<Button>(R.id.btnStartNeckStretch)
 
         btnArmRaise.setOnClickListener {
-            launchSession("Arm Raise", 10, 3)
+            launchSession("Right Arm Lateral Raise", 10, 3)
         }
         btnSquat.setOnClickListener {
             launchSession("Squat", 12, 3)
