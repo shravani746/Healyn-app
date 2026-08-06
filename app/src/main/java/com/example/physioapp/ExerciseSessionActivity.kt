@@ -32,6 +32,8 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.abs
 import kotlin.math.atan2
+import android.speech.tts.TextToSpeech
+import java.util.Locale
 
 class ExerciseSessionActivity : AppCompatActivity() {
 
@@ -49,6 +51,10 @@ class ExerciseSessionActivity : AppCompatActivity() {
     // ─── MediaPipe + Camera ───────────────────────────
     private lateinit var poseLandmarker: PoseLandmarker
     private lateinit var cameraExecutor: ExecutorService
+    // Voice Assistant
+    private lateinit var textToSpeech: TextToSpeech
+    private var lastSpokenFeedback = ""
+    private var lastSpeechTime = 0L
 
     // ─── Session state ────────────────────────────────
     private var exerciseName = "Right Arm Lateral Raise"
@@ -116,14 +122,55 @@ class ExerciseSessionActivity : AppCompatActivity() {
             finish()
         }
 
+
+        // Initialize Voice Assistant
+        textToSpeech = TextToSpeech(this) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                textToSpeech.language = Locale.US
+                textToSpeech.setSpeechRate(0.9f)
+                textToSpeech.setPitch(1.0f)
+
+                // 👇 ADD THE WELCOME MESSAGE HERE
+                Handler(Looper.getMainLooper()).postDelayed({
+
+                    if (exerciseName == "Right Arm Lateral Raise") {
+
+                        textToSpeech.speak(
+                            "Welcome to Healyn. Let's begin the Right Arm Lateral Raise exercise.",
+                            TextToSpeech.QUEUE_FLUSH,
+                            null,
+                            "welcome"
+                        )
+
+                    } else if (exerciseName == "Squat") {
+
+                        textToSpeech.speak(
+                            "Welcome to Healyn. Let's begin the Squat exercise.",
+                            TextToSpeech.QUEUE_FLUSH,
+                            null,
+                            "welcome"
+                        )
+
+                    }
+
+                }, 1000)
+            }
+        }
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED) {
+
             ActivityCompat.requestPermissions(
-                this, arrayOf(Manifest.permission.CAMERA), 100
+                this,
+                arrayOf(Manifest.permission.CAMERA),
+                100
             )
+
         } else {
+
             setupMediaPipe()
             startCamera()
+
         }
 
         btnStop.setOnClickListener {
@@ -324,6 +371,16 @@ class ExerciseSessionActivity : AppCompatActivity() {
                             armRepScores.add(repScore)
 
                             repCount++
+                            if (exerciseName == "Right Arm Lateral Raise" ||
+                                exerciseName == "Squat") {
+
+                                textToSpeech.speak(
+                                    "Great job! Repetition completed.",
+                                    TextToSpeech.QUEUE_ADD,
+                                    null,
+                                    "rep"
+                                )
+                            }
                             android.util.Log.d("REP",
                                 "Arm rep $repCount: rom=$romScore elbow=$elbowScore score=$repScore")
                             runOnUiThread { tvRepCount.text = repCount.toString() }
@@ -401,6 +458,16 @@ class ExerciseSessionActivity : AppCompatActivity() {
                             squatRepScores.add(repScore)
 
                             repCount++
+                            if (exerciseName == "Right Arm Lateral Raise" ||
+                                exerciseName == "Squat") {
+
+                                textToSpeech.speak(
+                                    "Great job! Repetition completed.",
+                                    TextToSpeech.QUEUE_ADD,
+                                    null,
+                                    "rep"
+                                )
+                            }
                             android.util.Log.d("REP",
                                 "Squat rep $repCount: depth=$depthScore back=$backScore score=$repScore")
                             runOnUiThread { tvRepCount.text = repCount.toString() }
@@ -520,6 +587,22 @@ class ExerciseSessionActivity : AppCompatActivity() {
                 feedbackDot.setBackgroundResource(R.drawable.circle_red)
             }
         }
+
+        if (exerciseName == "Right Arm Lateral Raise" ||
+            exerciseName == "Squat") {
+
+            speakFeedback(
+                feedback
+                    .replace("💪", "")
+                    .replace("🎯", "")
+                    .replace("⬆️", "")
+                    .replace("⬇️", "")
+                    .replace("➡️", "")
+                    .replace("🔽", "")
+                    .replace("🔼", "")
+                    .trim()
+            )
+        }
     }
 
     // ─── Message when no person detected ─────────────
@@ -538,6 +621,14 @@ class ExerciseSessionActivity : AppCompatActivity() {
                 runOnUiThread {
                     isStopped = true
                     Toast.makeText(this, "All sets complete! Amazing work!", Toast.LENGTH_LONG).show()
+                    if (::textToSpeech.isInitialized) {
+                        textToSpeech.speak(
+                            "Congratulations! You have successfully completed your exercise session.",
+                            TextToSpeech.QUEUE_FLUSH,
+                            null,
+                            "finish"
+                        )
+                    }
                     Handler(Looper.getMainLooper()).postDelayed({ goToFeedback() }, 1500)
                 }
             } else {
@@ -548,6 +639,8 @@ class ExerciseSessionActivity : AppCompatActivity() {
             }
         }
     }
+
+
 
     // ─── Break Dialog ─────────────────────────────────
     private fun showBreakDialog() {
@@ -608,6 +701,8 @@ class ExerciseSessionActivity : AppCompatActivity() {
         }
         handler.postDelayed(runnable, 1000)
     }
+
+
 
     // ─── Go to Feedback ───────────────────────────────
     private fun goToFeedback() {
@@ -674,13 +769,43 @@ class ExerciseSessionActivity : AppCompatActivity() {
         }
     }
 
+    private fun speakFeedback(message: String) {
+
+        val currentTime = System.currentTimeMillis()
+
+        if (message != lastSpokenFeedback &&
+            currentTime - lastSpeechTime > 1800) {
+
+            lastSpokenFeedback = message
+            lastSpeechTime = currentTime
+
+            if (::textToSpeech.isInitialized) {
+                textToSpeech.speak(
+                    message,
+                    TextToSpeech.QUEUE_FLUSH,
+                    null,
+                    "feedback"
+                )
+            }
+        }
+    }
+
     // ─── Cleanup ─────────────────────────────────────
     override fun onDestroy() {
         super.onDestroy()
+
         isStopped = true
+
         cameraExecutor.shutdown()
+
         if (::poseLandmarker.isInitialized) {
             poseLandmarker.close()
         }
+
+        if (::textToSpeech.isInitialized) {
+            textToSpeech.stop()
+            textToSpeech.shutdown()
+        }
     }
+
 }
