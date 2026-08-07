@@ -32,6 +32,13 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.abs
 import kotlin.math.atan2
+import com.example.physioapp.model.SaveProgressRequest
+import com.example.physioapp.model.ProgressResponse
+import com.example.physioapp.model.ResumeProgressResponse
+import com.example.physioapp.network.ApiClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class ExerciseSessionActivity : AppCompatActivity() {
 
@@ -47,7 +54,7 @@ class ExerciseSessionActivity : AppCompatActivity() {
     private lateinit var btnStop:         Button
 
     // ─── MediaPipe + Camera ───────────────────────────
-    private lateinit var poseLandmarker: PoseLandmarker
+    private var poseLandmarker: PoseLandmarker? = null
     private lateinit var cameraExecutor: ExecutorService
 
     // ─── Session state ────────────────────────────────
@@ -56,6 +63,7 @@ class ExerciseSessionActivity : AppCompatActivity() {
     private var totalReps    = 10
     private var currentSet   = 1
     private var repCount     = 0
+    private lateinit var userId: String
     private var isStopped    = false
     private var isBreakShowing = false
 
@@ -90,6 +98,8 @@ class ExerciseSessionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_exercise_session)
+        val sharedPreferences = getSharedPreferences("HealynApp", MODE_PRIVATE)
+        userId = sharedPreferences.getString("USER_ID", "") ?: ""
 
         exerciseName = intent.getStringExtra("EXERCISE_NAME") ?: "Right Arm Lateral Raise"
         totalSets    = intent.getIntExtra("EXERCISE_SETS", 3)
@@ -110,6 +120,8 @@ class ExerciseSessionActivity : AppCompatActivity() {
         tvSetCount.text      = "$currentSet/$totalSets"
         tvRepCount.text      = "0"
 
+        loadProgress()
+
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         findViewById<TextView>(R.id.btnBackSession).setOnClickListener {
@@ -128,11 +140,13 @@ class ExerciseSessionActivity : AppCompatActivity() {
 
         btnStop.setOnClickListener {
             isStopped = true
+            saveProgress("In Progress")
             goToFeedback()
         }
 
         btnFinish.setOnClickListener {
             isStopped = true
+            saveProgress("Completed")
             goToFeedback()
         }
     }
@@ -161,7 +175,27 @@ class ExerciseSessionActivity : AppCompatActivity() {
                 }
                 .build()
 
-            poseLandmarker = PoseLandmarker.createFromOptions(this, options)
+            poseLandmarker = try {
+
+                PoseLandmarker.createFromOptions(
+                    this,
+                    options
+                )
+
+            } catch (e: Exception) {
+
+                android.util.Log.e(
+                    "MEDIAPIPE",
+                    "Loading failed: ${e.message}"
+                )
+
+                runOnUiThread {
+                    tvLiveFeedback.text =
+                        "AI detection unavailable"
+                }
+
+                null
+            }
             android.util.Log.d("MEDIAPIPE", "MediaPipe setup successful")
 
         } catch (e: Exception) {
@@ -222,7 +256,10 @@ class ExerciseSessionActivity : AppCompatActivity() {
                 imageProxy.imageInfo.rotationDegrees.toFloat()
             )
             val mpImage = BitmapImageBuilder(rotated).build()
-            poseLandmarker.detectAsync(mpImage, System.currentTimeMillis())
+            poseLandmarker?.detectAsync(
+                mpImage,
+                System.currentTimeMillis()
+            )
 
             frameCount++
             if (frameCount % 30 == 0) {
@@ -537,6 +574,10 @@ class ExerciseSessionActivity : AppCompatActivity() {
             if (currentSet >= totalSets) {
                 runOnUiThread {
                     isStopped = true
+
+                    // Save completed exercise
+                    saveProgress("Completed")
+
                     Toast.makeText(this, "All sets complete! Amazing work!", Toast.LENGTH_LONG).show()
                     Handler(Looper.getMainLooper()).postDelayed({ goToFeedback() }, 1500)
                 }
@@ -609,6 +650,106 @@ class ExerciseSessionActivity : AppCompatActivity() {
         handler.postDelayed(runnable, 1000)
     }
 
+    // ─── Load Saved Progress from Backend ─────────────
+    private fun loadProgress() {
+
+        ApiClient.apiService.resumeProgress(
+            userId,
+            exerciseName
+        ).enqueue(object : Callback<ResumeProgressResponse> {
+
+            override fun onResponse(
+                call: Call<ResumeProgressResponse>,
+                response: Response<ResumeProgressResponse>
+            ) {
+
+                if (response.isSuccessful &&
+                    response.body()?.success == true &&
+                    response.body()?.session != null
+                ) {
+
+                    val session = response.body()!!.session!!
+
+                    currentSet = session.setsCompleted
+                    repCount = session.repsCompleted
+
+                    tvSetCount.text = "$currentSet/$totalSets"
+                    tvRepCount.text = repCount.toString()
+
+                    Toast.makeText(
+                        this@ExerciseSessionActivity,
+                        "Previous progress restored",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+            }
+
+            override fun onFailure(
+                call: Call<ResumeProgressResponse>,
+                t: Throwable
+            ) {
+
+                android.util.Log.e(
+                    "RESUME",
+                    t.message ?: "Resume failed"
+                )
+
+            }
+
+        })
+
+    }
+
+    // ─── Save Progress to Backend ─────────────────────
+    private fun saveProgress(status: String) {
+
+        val accuracy = when (exerciseName) {
+            "Right Arm Lateral Raise" ->
+                if (armRepScores.isEmpty()) 0
+                else (armRepScores.average() * 100).toInt().coerceIn(0, 100)
+
+            "Squat" ->
+                if (squatRepScores.isEmpty()) 0
+                else (squatRepScores.average() * 100).toInt().coerceIn(0, 100)
+
+            "Neck Stretch" ->
+                if (neckRepScores.isEmpty()) 0
+                else (neckRepScores.average() * 100).toInt().coerceIn(0, 100)
+
+            else -> 0
+        }
+
+        val request = SaveProgressRequest(
+            userId = userId,
+            exerciseName = exerciseName,
+            setsCompleted = currentSet,
+            repsCompleted = repCount,
+            accuracy = accuracy,
+            feedback = "",
+            status = status
+        )
+
+        ApiClient.apiService.saveProgress(request)
+            .enqueue(object : Callback<ProgressResponse> {
+
+                override fun onResponse(
+                    call: Call<ProgressResponse>,
+                    response: Response<ProgressResponse>
+                ) {
+                    android.util.Log.d("PROGRESS", "Progress saved")
+                }
+
+                override fun onFailure(
+                    call: Call<ProgressResponse>,
+                    t: Throwable
+                ) {
+                    android.util.Log.e("PROGRESS", t.message ?: "Save failed")
+                }
+
+            })
+    }
+
     // ─── Go to Feedback ───────────────────────────────
     private fun goToFeedback() {
         val accuracy = when (exerciseName) {
@@ -679,8 +820,6 @@ class ExerciseSessionActivity : AppCompatActivity() {
         super.onDestroy()
         isStopped = true
         cameraExecutor.shutdown()
-        if (::poseLandmarker.isInitialized) {
-            poseLandmarker.close()
-        }
+        poseLandmarker?.close()
     }
 }
