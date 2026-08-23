@@ -77,6 +77,11 @@
             android:name=".ProgressActivity"
             android:exported="false"
             android:screenOrientation="portrait"/>
+        <!-- Chatbot -->
+        <activity
+            android:name=".chatbot.ChatbotActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
 
     </application>
 
