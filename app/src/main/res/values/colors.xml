@@ -72,4 +72,15 @@
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
+
+    <!-- Added for Healyn chatbot / mascot -->
+    <color name="healyn_primary">#172A48</color>
+    <color name="healyn_accent">#00828A</color>
+    <color name="healyn_background">#EFF2F9</color>
+    <color name="healyn_surface">#FFFFFF</color>
+    <color name="healyn_success_bg">#DFF3F1</color>
+    <color name="healyn_success_text">#1B4A3F</color>
+    <color name="healyn_warning_bg">#FDF1DD</color>
+    <color name="healyn_warning_text">#7A442A</color>
+    <color name="healyn_error">#E5402C</color>
 </resources>

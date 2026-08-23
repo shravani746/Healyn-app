@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="80dp"
+    android:layout_height="80dp">
+
+    <ImageView
+        android:id="@+id/ivMascotCircle"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:background="@drawable/bg_mascot_circle"
+        android:elevation="8dp"
+        android:contentDescription="@null"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <ImageView
+        android:id="@+id/ivMascotImage"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="2dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/mascot_bust_idle"
+        android:contentDescription="@string/mascot_content_description"
+        app:layout_constraintWidth_percent="0.68"
+        app:layout_constraintDimensionRatio="H,582:641"
+        app:layout_constraintBottom_toBottomOf="@id/ivMascotCircle"
+        app:layout_constraintStart_toStartOf="@id/ivMascotCircle"
+        app:layout_constraintEnd_toEndOf="@id/ivMascotCircle"/>
+
+    <ImageView
+        android:id="@+id/ivChatBadge"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_chat_badge"
+        android:contentDescription="@null"
+        android:layout_marginTop="-2dp"
+        android:layout_marginEnd="-2dp"
+        app:layout_constraintTop_toTopOf="@id/ivMascotCircle"
+        app:layout_constraintEnd_toEndOf="@id/ivMascotCircle"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

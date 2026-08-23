@@ -63,4 +63,7 @@
     <string name="nav_patients">Patients</string>
     <string name="nav_plans">Plans</string>
     <string name="nav_assign">Assign</string>
+
+    <!-- Added for Healyn chatbot / mascot -->
+    <string name="mascot_content_description">Open Healyn support assistant</string>
 </resources>
