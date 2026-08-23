@@ -32,6 +32,8 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.abs
 import kotlin.math.atan2
+import android.speech.tts.TextToSpeech
+import java.util.Locale
 
 class ExerciseSessionActivity : AppCompatActivity() {
 
@@ -49,6 +51,20 @@ class ExerciseSessionActivity : AppCompatActivity() {
     // ─── MediaPipe + Camera ───────────────────────────
     private lateinit var poseLandmarker: PoseLandmarker
     private lateinit var cameraExecutor: ExecutorService
+    // Voice Assistant
+    private lateinit var textToSpeech: TextToSpeech
+    private var lastSpokenFeedback = ""
+    private var lastSpeechTime = 0L
+
+    // Rotating pool of rep-completion phrases — picked at random each rep so it
+    // doesn't repeat the exact same line every single time and start feeling robotic.
+    private val repCompletionPhrases = listOf(
+        "Great job! Repetition completed.",
+        "Nice work! Keep it up.",
+        "Well done. One more rep in the books.",
+        "Perfect! Keep that momentum going.",
+        "Awesome rep! Let's do another."
+    )
 
     // ─── Session state ────────────────────────────────
     private var exerciseName = "Right Arm Lateral Raise"
@@ -66,6 +82,9 @@ class ExerciseSessionActivity : AppCompatActivity() {
     private var minElbowAngleThisRep = 180.0
     private val armRepScores         = mutableListOf<Double>()
     private val armShoulderAngleBuffer = ArrayDeque<Double>(5)
+    // NEW: elbow angle now gets the same 5-frame smoothing as shoulder angle,
+    // so a single noisy MediaPipe frame can no longer zero out a whole rep's elbow score.
+    private val armElbowAngleBuffer    = ArrayDeque<Double>(5)
 
     // ─── Squat rep-quality state ──────────────────────
     private enum class SquatPhase { WAITING_STAND, WAITING_SQUAT, WAITING_RETURN_STAND }
@@ -116,14 +135,55 @@ class ExerciseSessionActivity : AppCompatActivity() {
             finish()
         }
 
+
+        // Initialize Voice Assistant
+        textToSpeech = TextToSpeech(this) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                textToSpeech.language = Locale.US
+                textToSpeech.setSpeechRate(0.9f)
+                textToSpeech.setPitch(1.0f)
+
+                // 👇 ADD THE WELCOME MESSAGE HERE
+                Handler(Looper.getMainLooper()).postDelayed({
+
+                    if (exerciseName == "Right Arm Lateral Raise") {
+
+                        textToSpeech.speak(
+                            "Welcome to Healyn. Let's begin the Right Arm Lateral Raise exercise.",
+                            TextToSpeech.QUEUE_FLUSH,
+                            null,
+                            "welcome"
+                        )
+
+                    } else if (exerciseName == "Squat") {
+
+                        textToSpeech.speak(
+                            "Welcome to Healyn. Let's begin the Squat exercise.",
+                            TextToSpeech.QUEUE_FLUSH,
+                            null,
+                            "welcome"
+                        )
+
+                    }
+
+                }, 1000)
+            }
+        }
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED) {
+
             ActivityCompat.requestPermissions(
-                this, arrayOf(Manifest.permission.CAMERA), 100
+                this,
+                arrayOf(Manifest.permission.CAMERA),
+                100
             )
+
         } else {
+
             setupMediaPipe()
             startCamera()
+
         }
 
         btnStop.setOnClickListener {
@@ -287,9 +347,13 @@ class ExerciseSessionActivity : AppCompatActivity() {
                     hip.x(), hip.y(), shoulder.x(), shoulder.y(), elbow.x(), elbow.y()
                 )
                 val shoulderAngle = smoothAngle(rawShoulderAngle, armShoulderAngleBuffer)
-                val elbowAngle = calculateAngle(
+
+                // FIXED: elbow angle is now smoothed the same way shoulder angle is,
+                // instead of being used raw straight off a single frame.
+                val rawElbowAngle = calculateAngle(
                     shoulder.x(), shoulder.y(), elbow.x(), elbow.y(), wrist.x(), wrist.y()
                 )
+                val elbowAngle = smoothAngle(rawElbowAngle, armElbowAngleBuffer)
 
                 android.util.Log.d("ANGLE_CHECK",
                     "shoulderAngle=$shoulderAngle elbowAngle=$elbowAngle phase=$armPhase")
@@ -324,6 +388,16 @@ class ExerciseSessionActivity : AppCompatActivity() {
                             armRepScores.add(repScore)
 
                             repCount++
+                            if (exerciseName == "Right Arm Lateral Raise" ||
+                                exerciseName == "Squat") {
+
+                                textToSpeech.speak(
+                                    repCompletionPhrases.random(),
+                                    TextToSpeech.QUEUE_ADD,
+                                    null,
+                                    "rep"
+                                )
+                            }
                             android.util.Log.d("REP",
                                 "Arm rep $repCount: rom=$romScore elbow=$elbowScore score=$repScore")
                             runOnUiThread { tvRepCount.text = repCount.toString() }
@@ -401,6 +475,16 @@ class ExerciseSessionActivity : AppCompatActivity() {
                             squatRepScores.add(repScore)
 
                             repCount++
+                            if (exerciseName == "Right Arm Lateral Raise" ||
+                                exerciseName == "Squat") {
+
+                                textToSpeech.speak(
+                                    repCompletionPhrases.random(),
+                                    TextToSpeech.QUEUE_ADD,
+                                    null,
+                                    "rep"
+                                )
+                            }
                             android.util.Log.d("REP",
                                 "Squat rep $repCount: depth=$depthScore back=$backScore score=$repScore")
                             runOnUiThread { tvRepCount.text = repCount.toString() }
@@ -520,6 +604,30 @@ class ExerciseSessionActivity : AppCompatActivity() {
                 feedbackDot.setBackgroundResource(R.drawable.circle_red)
             }
         }
+
+        if (exerciseName == "Right Arm Lateral Raise" ||
+            exerciseName == "Squat") {
+
+            // Rep 1 (repCount still 0): full step-by-step coaching, same as before.
+            // From rep 2 onward: stay quiet during normal good-form movement — only
+            // speak up if something's actually wrong (isGoodForm == false), so the
+            // voice acts like a coach correcting mistakes rather than narrating every rep.
+            val shouldSpeak = (repCount == 0) || !isGoodForm
+
+            if (shouldSpeak) {
+                speakFeedback(
+                    feedback
+                        .replace("💪", "")
+                        .replace("🎯", "")
+                        .replace("⬆️", "")
+                        .replace("⬇️", "")
+                        .replace("➡️", "")
+                        .replace("🔽", "")
+                        .replace("🔼", "")
+                        .trim()
+                )
+            }
+        }
     }
 
     // ─── Message when no person detected ─────────────
@@ -538,6 +646,14 @@ class ExerciseSessionActivity : AppCompatActivity() {
                 runOnUiThread {
                     isStopped = true
                     Toast.makeText(this, "All sets complete! Amazing work!", Toast.LENGTH_LONG).show()
+                    if (::textToSpeech.isInitialized) {
+                        textToSpeech.speak(
+                            "Congratulations! You have successfully completed your exercise session.",
+                            TextToSpeech.QUEUE_FLUSH,
+                            null,
+                            "finish"
+                        )
+                    }
                     Handler(Looper.getMainLooper()).postDelayed({ goToFeedback() }, 1500)
                 }
             } else {
@@ -548,6 +664,8 @@ class ExerciseSessionActivity : AppCompatActivity() {
             }
         }
     }
+
+
 
     // ─── Break Dialog ─────────────────────────────────
     private fun showBreakDialog() {
@@ -608,6 +726,8 @@ class ExerciseSessionActivity : AppCompatActivity() {
         }
         handler.postDelayed(runnable, 1000)
     }
+
+
 
     // ─── Go to Feedback ───────────────────────────────
     private fun goToFeedback() {
@@ -674,13 +794,50 @@ class ExerciseSessionActivity : AppCompatActivity() {
         }
     }
 
+    private fun speakFeedback(message: String) {
+
+        val currentTime = System.currentTimeMillis()
+
+        // Don't interrupt a sentence that's already being spoken — if TTS is busy,
+        // just skip this attempt entirely rather than flushing mid-word. The next
+        // genuinely new message will get its turn once the current one finishes.
+        if (::textToSpeech.isInitialized && textToSpeech.isSpeaking) {
+            return
+        }
+
+        if (message != lastSpokenFeedback &&
+            currentTime - lastSpeechTime > 1800) {
+
+            lastSpokenFeedback = message
+            lastSpeechTime = currentTime
+
+            if (::textToSpeech.isInitialized) {
+                textToSpeech.speak(
+                    message,
+                    TextToSpeech.QUEUE_FLUSH,
+                    null,
+                    "feedback"
+                )
+            }
+        }
+    }
+
     // ─── Cleanup ─────────────────────────────────────
     override fun onDestroy() {
         super.onDestroy()
+
         isStopped = true
+
         cameraExecutor.shutdown()
+
         if (::poseLandmarker.isInitialized) {
             poseLandmarker.close()
         }
+
+        if (::textToSpeech.isInitialized) {
+            textToSpeech.stop()
+            textToSpeech.shutdown()
+        }
     }
+
 }
